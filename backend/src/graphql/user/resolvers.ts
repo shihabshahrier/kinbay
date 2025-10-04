@@ -24,7 +24,19 @@ const mutations = {
         const user = await UserService.createUser(payload);
         const token = signToken({ email: user.email });
         return token;
+    },
+
+    updateUser: async (_: any, payload: { id: number; email?: string; firstname?: string; lastname?: string; address?: string; phone?: string; password?: string }, context: { user?: { email: string } }) => {
+        if (!context.user) {
+            throw new Error('Not authenticated');
+        }
+        const user = await UserService.getUserByEmail(context.user.email);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return await UserService.updateUser(user.email, payload);
     }
+
 }
 
 export const resolvers = { queries, mutations }

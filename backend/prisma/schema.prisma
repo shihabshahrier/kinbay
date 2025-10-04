@@ -14,16 +14,98 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  firstname String?
-  lastname  String?  
+  id        Int          @id @default(autoincrement())
+  email     String       @unique
+  firstname String
+  lastname  String?      
   password  String
   salt      String
-  address   String?  
-  phone     String?  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  address   String?      
+  phone     String?      
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  deleted   Boolean      @default(false)
+
+  // Relations
+  products      Product[]
+  transactions  Transaction[]
 
   @@map("users")
+}
+
+
+model Category {
+  id       Int                 @id @default(autoincrement())
+  name     String              @unique
+  products ProductCategory[]
+
+  @@map("categories")
+}
+
+
+model Product {
+  id            Int                  @id @default(autoincrement())
+  name          String
+  description   String
+  priceBuy      Float?               
+  priceRent     Float?    
+  rentOption    RentOption? 
+  owner         User                 @relation(fields: [ownerId], references: [id])
+  ownerId       Int
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  categories    ProductCategory[]
+  transactions  Transaction[]
+  deleted       Boolean              @default(false)
+
+  @@index([ownerId])
+  @@map("products")
+}
+
+model ProductCategory {
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
+}
+
+
+enum TransactionType {
+  BUY
+  RENT
+}
+
+enum RentOption {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+}
+
+model Transaction {
+  id        Int             @id @default(autoincrement())
+  product   Product         @relation(fields: [productId], references: [id])
+  productId Int
+  user      User            @relation(fields: [userId], references: [id])
+  userId    Int
+  type      TransactionType
+  status    TransactionStatus @default(PENDING)
+  price     Float             
+  startDate DateTime?         
+  endDate   DateTime?         
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  deleted   Boolean            @default(false)
+
+  @@index([userId])
+  @@index([productId])
+
+  @@map("transactions")
 }

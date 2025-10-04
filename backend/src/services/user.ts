@@ -67,6 +67,19 @@ class UserService {
 
     }
 
+    public static async updateUser(email: string, payload: Partial<createUserPayload>) {
+        if (payload.password) {
+            const salt = generateSalt();
+            const hashedPassword = hashPassword(payload.password, salt);
+            payload.password = hashedPassword;
+            (payload as any).salt = salt; // add salt to payload
+        }
+        return await DB.user.update({
+            where: { email },
+            data: payload,
+        });
+    }
+
 }
 
 export default UserService;
