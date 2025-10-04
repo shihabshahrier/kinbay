@@ -9,7 +9,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
-    "types": [],
+    "types": ["node", "jest"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -37,8 +37,10 @@
     "jsx": "react-jsx",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
+
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "prisma", "**/*.test.ts", "**/*.spec.ts"]
 }
