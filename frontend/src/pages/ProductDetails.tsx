@@ -23,7 +23,6 @@ const ProductDetails = () => {
         errorPolicy: 'all'
     });
 
-    console.log('ProductDetails - ID:', id, 'Loading:', loading, 'Error:', error, 'Data:', data);
 
     const [buyProduct, { loading: buyLoading }] = useMutation(BUY_PRODUCT, {
         onCompleted: () => {
