@@ -54,6 +54,29 @@ const queries = {
             throw new Error('Transaction not found');
         }
         return transaction;
+    },
+
+    checkProductAvailability: async (_: any, args: { productId: string; startDate?: string; endDate?: string }) => {
+        const productId = parseInt(args.productId, 10);
+        if (isNaN(productId)) {
+            throw new Error('Invalid product ID');
+        }
+
+        const startDate = args.startDate ? new Date(args.startDate) : undefined;
+        const endDate = args.endDate ? new Date(args.endDate) : undefined;
+
+        return await ProductService.checkProductAvailability(productId, startDate, endDate);
+    },
+
+    getPendingTransactionsForOwner: async (_: any, __: any, context: { user?: { email: string } }) => {
+        if (!context.user) {
+            throw new Error('Not authenticated');
+        }
+        const owner = await UserService.getUserByEmail(context.user.email);
+        if (!owner) {
+            throw new Error('User not found');
+        }
+        return await ProductService.getPendingTransactionsForOwner(owner.id);
     }
 
 }

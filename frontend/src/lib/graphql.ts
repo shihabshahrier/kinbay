@@ -358,3 +358,49 @@ export const GET_TRANSACTION_BY_ID = gql`
     }
   }
 `;
+
+export const CHECK_PRODUCT_AVAILABILITY = gql`
+  query CheckProductAvailability($productId: ID!, $startDate: String, $endDate: String) {
+    checkProductAvailability(productId: $productId, startDate: $startDate, endDate: $endDate) {
+      available
+      reason
+      conflictingRentals {
+        id
+        startDate
+        endDate
+        user {
+          firstname
+          lastname
+        }
+      }
+    }
+  }
+`;
+
+export const GET_PENDING_TRANSACTIONS_FOR_OWNER = gql`
+  query GetPendingTransactionsForOwner {
+    getPendingTransactionsForOwner {
+      id
+      type
+      status
+      price
+      startDate
+      endDate
+      createdAt
+      user {
+        id
+        firstname
+        lastname
+        email
+      }
+      product {
+        id
+        name
+        description
+        priceBuy
+        priceRent
+        rentOption
+      }
+    }
+  }
+`;

@@ -1,5 +1,5 @@
 import { AppShell, Group, Button, Text, Avatar, Menu, UnstyledButton, Flex } from '@mantine/core';
-import { IconPlus, IconList, IconHistory, IconLogout, IconUser, IconLogin } from '@tabler/icons-react';
+import { IconPlus, IconList, IconHistory, IconLogout, IconUser, IconLogin, IconCheck } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import type { ReactNode } from 'react';
@@ -117,6 +117,17 @@ const Layout = ({ children }: LayoutProps) => {
                                 justify="flex-start"
                             >
                                 My Transactions
+                            </Button>
+
+                            <Button
+                                variant="light"
+                                leftSection={<IconCheck size={16} />}
+                                component={Link}
+                                to="/pending-approvals"
+                                fullWidth
+                                justify="flex-start"
+                            >
+                                Pending Approvals
                             </Button>
                         </>
                     )}

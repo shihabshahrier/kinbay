@@ -14,6 +14,7 @@ import AddProduct from './pages/AddProduct.tsx';
 import EditProduct from './pages/EditProduct.tsx';
 import ProductDetails from './pages/ProductDetails.tsx';
 import MyTransactions from './pages/MyTransactions.tsx';
+import PendingApprovals from './pages/PendingApprovals.tsx';
 import Profile from './pages/Profile.tsx';
 import Layout from './components/Layout';
 import '@mantine/core/styles.css';
@@ -108,6 +109,16 @@ function AppContent() {
             <ProtectedRoute>
               <Layout>
                 <MyTransactions />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pending-approvals"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PendingApprovals />
               </Layout>
             </ProtectedRoute>
           }

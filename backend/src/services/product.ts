@@ -83,7 +83,8 @@ class ProductService {
     }
 
     public static async getAllProducts() {
-        return await DB.product.findMany({
+        // Get all products that haven't been deleted
+        const products = await DB.product.findMany({
             where: { deleted: false },
             include: {
                 categories: {
@@ -91,9 +92,28 @@ class ProductService {
                         category: true
                     }
                 },
-                owner: true
+                owner: true,
+                transactions: {
+                    where: {
+                        type: TransactionType.BUY,
+                        status: { in: [TransactionStatus.PENDING, TransactionStatus.COMPLETED] },
+                        deleted: false
+                    }
+                }
             }
         });
+
+        // Debug: Log products and their transactions
+        console.log('All products with completed BUY transactions:');
+        products.forEach(product => {
+            console.log(`Product ${product.id} (${product.name}): ${product.transactions.length} completed transactions`);
+        });
+
+        // Filter out products that have been sold
+        const availableProducts = products.filter(product => product.transactions.length === 0);
+        console.log(`Returning ${availableProducts.length} available products out of ${products.length} total products`);
+
+        return availableProducts;
     }
 
     public static async deleteProduct(id: number) {
@@ -167,13 +187,28 @@ class ProductService {
             throw new Error('Cannot buy/rent your own product');
         }
 
+        // Check if product has been sold (for both BUY and RENT transactions)
+        const soldTransaction = await DB.transaction.findFirst({
+            where: {
+                productId,
+                type: TransactionType.BUY,
+                status: TransactionStatus.COMPLETED,
+                deleted: false
+            }
+        });
+
+        if (soldTransaction) {
+            throw new Error('Product is no longer available - it has been sold');
+        }
+
         // For rent transactions, check for overlapping rentals
         if (type === TransactionType.RENT && startDate && endDate) {
             const overlappingRentals = await DB.transaction.findMany({
                 where: {
                     productId,
                     type: TransactionType.RENT,
-                    status: TransactionStatus.COMPLETED,
+                    status: { in: [TransactionStatus.PENDING, TransactionStatus.COMPLETED] },
+                    deleted: false,
                     OR: [
                         {
                             AND: [
@@ -368,6 +403,102 @@ class ProductService {
                     }
                 },
                 user: true
+            }
+        });
+    }
+
+    // Check if a product is available for purchase or rental
+    public static async checkProductAvailability(productId: number, startDate?: Date, endDate?: Date) {
+        const product = await DB.product.findUnique({
+            where: { id: Number(productId), deleted: false }
+        });
+
+        if (!product) {
+            return { available: false, reason: 'Product not found or deleted' };
+        }
+
+        // Check if product has been sold
+        const soldTransaction = await DB.transaction.findFirst({
+            where: {
+                productId,
+                type: TransactionType.BUY,
+                status: TransactionStatus.COMPLETED,
+                deleted: false
+            }
+        });
+
+        if (soldTransaction) {
+            return { available: false, reason: 'Product has been sold' };
+        }
+
+        // For rental checks, verify no overlapping rentals exist
+        if (startDate && endDate) {
+            const overlappingRentals = await DB.transaction.findMany({
+                where: {
+                    productId,
+                    type: TransactionType.RENT,
+                    status: TransactionStatus.COMPLETED,
+                    deleted: false,
+                    OR: [
+                        {
+                            AND: [
+                                { startDate: { lte: startDate } },
+                                { endDate: { gte: startDate } }
+                            ]
+                        },
+                        {
+                            AND: [
+                                { startDate: { lte: endDate } },
+                                { endDate: { gte: endDate } }
+                            ]
+                        },
+                        {
+                            AND: [
+                                { startDate: { gte: startDate } },
+                                { endDate: { lte: endDate } }
+                            ]
+                        }
+                    ]
+                }
+            });
+
+            if (overlappingRentals.length > 0) {
+                return {
+                    available: false,
+                    reason: 'Product is already rented during the selected time period',
+                    conflictingRentals: overlappingRentals
+                };
+            }
+        }
+
+        return { available: true, reason: 'Product is available' };
+    }
+
+    // Get pending transactions for products owned by a user (for approval)
+    public static async getPendingTransactionsForOwner(ownerId: number) {
+        return await DB.transaction.findMany({
+            where: {
+                product: {
+                    ownerId: ownerId
+                },
+                status: TransactionStatus.PENDING,
+                deleted: false
+            },
+            include: {
+                product: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true
+                            }
+                        },
+                        owner: true
+                    }
+                },
+                user: true
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
         });
     }

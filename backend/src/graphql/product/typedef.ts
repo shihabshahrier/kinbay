@@ -55,4 +55,10 @@ export const typeDefs = `#graphql
         borrowed: [Transaction]!
         lent: [Transaction]!
     }
+
+    type ProductAvailability {
+        available: Boolean!
+        reason: String!
+        conflictingRentals: [Transaction]
+    }
 `

@@ -5,4 +5,6 @@ export const queries = `#graphql
     getCategories: [Category]
     getUserTransactions: UserTransactions
     getTransactionById(id: ID!): Transaction
+    checkProductAvailability(productId: ID!, startDate: String, endDate: String): ProductAvailability
+    getPendingTransactionsForOwner: [Transaction]
 `;
