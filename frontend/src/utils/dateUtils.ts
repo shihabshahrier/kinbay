@@ -10,7 +10,6 @@ export const formatDate = (dateString: string | null | undefined): string => {
         dateString === 'null' ||
         dateString === 'undefined' ||
         dateString.trim() === '') {
-        console.log('Returning N/A due to null/undefined/empty');
         return 'N/A';
     }
 
