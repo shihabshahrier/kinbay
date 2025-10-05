@@ -4,7 +4,6 @@
  */
 export const formatDate = (dateString: string | null | undefined): string => {
     // Debug logging to see what we're receiving
-    console.log('formatDate called with:', dateString, 'Type:', typeof dateString);
 
     // Handle null, undefined, or string representations of null
     if (!dateString ||
