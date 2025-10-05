@@ -38,9 +38,8 @@ export const formatDate = (dateString: string | null | undefined): string => {
             month: 'short',
             day: 'numeric'
         });
-    } catch (error) {
+    } catch {
         return 'N/A';
-    }
     }
 };
 
@@ -76,7 +75,7 @@ export const formatDateTime = (dateString: string | null | undefined): string =>
             hour: '2-digit',
             minute: '2-digit'
         });
-    } catch (error) {
+    } catch {
         // Error parsing date, return 'N/A'
         return 'N/A';
     }
