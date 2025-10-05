@@ -79,7 +79,7 @@ export const formatDateTime = (dateString: string | null | undefined): string =>
             minute: '2-digit'
         });
     } catch (error) {
-        console.error('DateTime parsing error:', error, 'for dateString:', dateString);
+        // Error parsing date, return 'N/A'
         return 'N/A';
     }
 };
