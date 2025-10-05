@@ -69,10 +69,8 @@ export const formatDateTime = (dateString: string | null | undefined): string =>
         }
 
         if (isNaN(date.getTime())) {
-            console.warn('Invalid date detected:', dateString);
             return 'N/A';
         }
-
         return date.toLocaleString('en-US', {
             year: 'numeric',
             month: 'short',
