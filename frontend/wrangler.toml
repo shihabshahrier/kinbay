@@ -1,0 +1,16 @@
+# Cloudflare Pages configuration for Kinbay Frontend
+name = "kinbay-frontend"
+compatibility_date = "2023-11-15"
+
+[build]
+command = "npm run build"
+cwd = "."
+publish = "dist"
+
+[env.production.vars]
+VITE_BACKEND_URL = "https://kinbay-backend-udvurziiuq-uc.a.run.app"
+VITE_USE_NEW_AUTH = "true"
+
+[env.preview.vars]  
+VITE_BACKEND_URL = "https://kinbay-backend-udvurziiuq-uc.a.run.app"
+VITE_USE_NEW_AUTH = "true"

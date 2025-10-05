@@ -1,13 +1,13 @@
 import JWT from 'jsonwebtoken';
 import crypto from 'crypto';
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET as string;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
 const ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN || '15m';
 const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
 
-if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET is not set in environment variables');
+if (!JWT_ACCESS_SECRET) {
+    throw new Error('JWT_ACCESS_SECRET is not set in environment variables');
 }
 
 if (!JWT_REFRESH_SECRET) {
@@ -38,7 +38,7 @@ export interface TokenPair {
  * Generate Access Token (JWT) - Short-lived (15 minutes)
  */
 export const signAccessToken = (payload: Omit<TokenPayload, 'iat' | 'exp'>): string => {
-    return JWT.sign(payload, JWT_SECRET, {
+    return JWT.sign(payload, JWT_ACCESS_SECRET, {
         expiresIn: '15m',
         issuer: 'kinbay-api',
         audience: 'kinbay-client'
@@ -61,7 +61,7 @@ export const signRefreshToken = (payload: Omit<RefreshTokenPayload, 'iat' | 'exp
  */
 export const verifyAccessToken = (token: string): TokenPayload => {
     try {
-        return JWT.verify(token, JWT_SECRET, {
+        return JWT.verify(token, JWT_ACCESS_SECRET, {
             issuer: 'kinbay-api',
             audience: 'kinbay-client'
         }) as TokenPayload;
@@ -101,13 +101,13 @@ export const getRefreshTokenExpirationDate = (): Date => {
 
 // Legacy functions for backward compatibility
 export const signToken = (payload: object, options?: JWT.SignOptions): string => {
-    return JWT.sign(payload, JWT_SECRET, {
+    return JWT.sign(payload, JWT_ACCESS_SECRET, {
         expiresIn: "1h",
         ...options,
     });
 };
 
 export const verifyToken = (token: string): object | string => {
-    return JWT.verify(token, JWT_SECRET);
+    return JWT.verify(token, JWT_ACCESS_SECRET);
 };
 

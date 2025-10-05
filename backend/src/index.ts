@@ -13,17 +13,63 @@ import DB from './lib/db.js';
 async function main(PORT: number) {
     const app = express();
 
-    // Configure CORS to allow credentials (for HTTP-only cookies)
+    // Trust proxy for Cloud Run
+    app.set('trust proxy', 1);
+
+    // Configure CORS for production and development
+    const corsOrigins = process.env.CORS_ORIGIN
+        ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+        : ['http://localhost:5173', 'http://localhost:3000'];
+
     app.use(cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-        credentials: true
+        origin: (origin, callback) => {
+            // Allow requests with no origin (mobile apps, curl, etc.)
+            if (!origin) return callback(null, true);
+
+            if (corsOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
     }));
 
-    app.use(express.json());
-    app.use(cookieParser()); // For HTTP-only cookie support
+    app.use(express.json({ limit: '10mb' }));
+    app.use(cookieParser());
+
+    // Health check endpoint for Cloud Run
+    app.get('/health', (req, res) => {
+        res.status(200).json({
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            version: process.env.npm_package_version || '1.0.0'
+        });
+    });
 
     app.get('/', (req, res) => {
-        res.send('Hello, World!');
+        res.json({
+            message: 'Kinbay API Server',
+            status: 'running',
+            endpoints: {
+                graphql: '/graphql',
+                health: '/health',
+                refresh: '/auth/refresh',
+                logout: '/auth/logout'
+            }
+        });
+    });
+
+    // Cookie configuration helper for cross-origin support
+    const getCookieOptions = (maxAge: number) => ({
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // HTTPS in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'strict' as const, // Cross-origin for production
+        maxAge,
+        path: '/',
+        domain: process.env.COOKIE_DOMAIN || undefined // Optional custom domain
     });
 
     // Add auth routes for cookie-based authentication
@@ -42,12 +88,7 @@ async function main(PORT: number) {
             const tokens = await UserService.refreshTokens(refreshToken);
 
             // Set new refresh token as HTTP-only cookie
-            res.cookie('refreshToken', tokens.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            });
+            res.cookie('refreshToken', tokens.refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
             res.json({ accessToken: tokens.accessToken });
         } catch (error) {
@@ -74,13 +115,7 @@ async function main(PORT: number) {
             const tokens = await UserService.getUserToken({ email, password });
 
             // Set refresh token as HTTP-only cookie
-            res.cookie('refreshToken', tokens.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                path: '/' // Available to entire site
-            });
+            res.cookie('refreshToken', tokens.refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
             // Only return access token (never expose refresh token to JavaScript)
             res.json({
@@ -105,21 +140,11 @@ async function main(PORT: number) {
             }
 
             // Clear refresh token cookie
-            res.clearCookie('refreshToken', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                path: '/'
-            });
+            res.clearCookie('refreshToken', getCookieOptions(0));
             res.json({ success: true });
         } catch (error) {
             // Even if logout fails, clear the cookie
-            res.clearCookie('refreshToken', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                path: '/'
-            });
+            res.clearCookie('refreshToken', getCookieOptions(0));
             res.json({ success: true });
         }
     });

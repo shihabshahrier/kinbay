@@ -3,6 +3,16 @@ import { createUserPayload, getUserTokenPayload } from '../../services/user.js';
 import { signToken, verifyAccessToken } from '../../lib/jwt.js';
 import RefreshTokenService from '../../services/refreshToken.js';
 
+// Cookie configuration helper for cross-origin support
+const getCookieOptions = (maxAge: number) => ({
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // HTTPS in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'strict' as const, // Cross-origin for production
+    maxAge,
+    path: '/',
+    domain: process.env.COOKIE_DOMAIN || undefined // Optional custom domain
+});
+
 const queries = {
     // Legacy login method - returns single JWT token
     getToken: async (_: any, payload: getUserTokenPayload) => {
@@ -49,13 +59,7 @@ const mutations = {
 
         // Set refresh token as HTTP-only cookie if response is available
         if (context.res) {
-            context.res.cookie('refreshToken', tokens.refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                path: '/'
-            });
+            context.res.cookie('refreshToken', tokens.refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
             // Return only access token (don't expose refresh token to JavaScript)
             return {
@@ -88,12 +92,7 @@ const mutations = {
 
         // Clear refresh token cookie if response is available
         if (context.res) {
-            context.res.clearCookie('refreshToken', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                path: '/'
-            });
+            context.res.clearCookie('refreshToken', getCookieOptions(0));
         }
 
         return true;

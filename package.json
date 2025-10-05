@@ -1,0 +1,11 @@
+{
+  "name": "kinbay-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm ci && npm run build",
+    "dev": "cd frontend && npm run dev"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
