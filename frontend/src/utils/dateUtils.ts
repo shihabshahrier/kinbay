@@ -41,8 +41,8 @@ export const formatDate = (dateString: string | null | undefined): string => {
             day: 'numeric'
         });
     } catch (error) {
-        console.error('Date parsing error:', error, 'for dateString:', dateString);
         return 'N/A';
+    }
     }
 };
 
