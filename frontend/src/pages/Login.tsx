@@ -6,14 +6,17 @@ import { useLazyQuery } from '@apollo/client';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { GET_TOKEN } from '../lib/graphql';
 import { useAuth } from '../hooks/useAuth';
+import { AuthService } from '../services/auth';
 import type { LoginFormData } from '../types';
 
 const Login = () => {
     const [error, setError] = useState<string | null>(null);
-    const { login } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const { login, loginNew } = useAuth();
     const navigate = useNavigate();
 
-    const [getToken, { loading }] = useLazyQuery(GET_TOKEN, {
+    // Legacy login query for fallback
+    const [getToken] = useLazyQuery(GET_TOKEN, {
         onCompleted: (data) => {
             if (data.getToken) {
                 login(data.getToken);
@@ -22,6 +25,7 @@ const Login = () => {
         },
         onError: (error) => {
             setError(error.message);
+            setLoading(false);
         }
     });
 
@@ -36,14 +40,28 @@ const Login = () => {
         },
     });
 
-    const handleSubmit = (values: LoginFormData) => {
+    const handleSubmit = async (values: LoginFormData) => {
         setError(null);
-        getToken({
-            variables: {
-                email: values.email,
-                password: values.password,
+        setLoading(true);
+
+        try {
+            if (AuthService.shouldUseNewAuth()) {
+                // Use new 2-token authentication system
+                await loginNew(values.email, values.password);
+                navigate('/dashboard');
+            } else {
+                // Fallback to legacy system
+                getToken({
+                    variables: {
+                        email: values.email,
+                        password: values.password,
+                    }
+                });
             }
-        });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Login failed');
+            setLoading(false);
+        }
     };
 
     return (

@@ -7,4 +7,16 @@ export const typeDefs = `#graphql
         address: String!
         phone: String!
     }
+    
+    type AuthTokens {
+        accessToken: String!
+        refreshToken: String!
+    }
+    
+    type RefreshTokenInfo {
+        id: ID!
+        createdAt: String!
+        expiresAt: String!
+        isActive: Boolean!
+    }
 `

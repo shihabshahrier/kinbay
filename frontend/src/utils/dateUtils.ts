@@ -18,13 +18,11 @@ export const formatDate = (dateString: string | null | undefined): string => {
 
         // Check if it's a timestamp string (all digits)
         if (/^\d+$/.test(dateString)) {
-            console.log('Detected timestamp string:', dateString);
             // Convert timestamp string to number and create date
             const timestamp = parseInt(dateString, 10);
             date = new Date(timestamp);
         } else {
             // Handle ISO date strings and other formats
-            console.log('Parsing as date string:', dateString);
             date = new Date(dateString);
         }
 

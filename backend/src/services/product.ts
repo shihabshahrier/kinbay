@@ -103,7 +103,8 @@ class ProductService {
             }
         });
 
-        // Filter out products that have been sold
+
+        // Return only products that haven't been sold
         const availableProducts = products.filter(product => product.transactions.length === 0);
 
         return availableProducts;

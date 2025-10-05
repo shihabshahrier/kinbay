@@ -5,6 +5,8 @@ import { GET_CURRENT_USER } from '../lib/graphql';
 import type { User } from '../types';
 import { isAuthenticated, logout } from '../lib/apollo-client';
 import { AuthContext, type AuthContextType } from './AuthContextTypes';
+import { AuthService } from '../services/auth';
+import { useTokenRefresh } from '../hooks/useTokenRefresh';
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -12,7 +14,13 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [isAuth, setIsAuth] = useState(isAuthenticated());
+    const [isAuth, setIsAuth] = useState(() => {
+        // Check both new and old auth systems
+        return AuthService.isAuthenticated() || isAuthenticated();
+    });
+
+    // Set up automatic token refresh for new auth system
+    useTokenRefresh();
 
     const { data, loading, refetch } = useQuery(GET_CURRENT_USER, {
         skip: !isAuth,
@@ -26,13 +34,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, [data]);
 
     const handleLogin = (token: string) => {
-        localStorage.setItem('token', token);
+        // Support both auth systems
+        localStorage.setItem('token', token); // Legacy
+        localStorage.setItem('accessToken', token); // New system
         setIsAuth(true);
         refetch();
     };
 
-    const handleLogout = () => {
-        logout();
+    const handleLoginNew = async (email: string, password: string) => {
+        const tokens = await AuthService.login(email, password);
+        setIsAuth(true);
+        refetch();
+        return tokens;
+    };
+
+    const handleLogout = async () => {
+        // Check which auth system to use at runtime
+        const useNewAuth = AuthService.shouldUseNewAuth();
+
+        if (useNewAuth && AuthService.isAuthenticated()) {
+            // Use new logout system
+            await AuthService.logout();
+        } else {
+            // Use legacy logout
+            logout();
+        }
         setUser(null);
         setIsAuth(false);
     };
@@ -41,6 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         loading,
         login: handleLogin,
+        loginNew: handleLoginNew,
         logout: handleLogout,
         isAuthenticated: isAuth,
         refetchUser: refetch
