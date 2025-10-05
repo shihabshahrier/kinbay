@@ -3,8 +3,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('Seeding categories...');
-
     const categories = [
         'ELECTRONICS',
         'FURNITURE',
@@ -23,18 +21,15 @@ async function main() {
             await prisma.category.create({
                 data: { name: categoryName }
             });
-            console.log(`Created category: ${categoryName}`);
-        } else {
-            console.log(`Category already exists: ${categoryName}`);
         }
     }
 
-    console.log('Seeding completed!');
+    console.log('Database seeded successfully!');
 }
 
 main()
     .catch((e) => {
-        console.error('Error seeding database:', e);
+        console.error('Seeding failed:', e);
         process.exit(1);
     })
     .finally(async () => {

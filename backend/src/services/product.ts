@@ -103,15 +103,9 @@ class ProductService {
             }
         });
 
-        // Debug: Log products and their transactions
-        console.log('All products with completed BUY transactions:');
-        products.forEach(product => {
-            console.log(`Product ${product.id} (${product.name}): ${product.transactions.length} completed transactions`);
-        });
 
-        // Filter out products that have been sold
+        // Return only products that haven't been sold
         const availableProducts = products.filter(product => product.transactions.length === 0);
-        console.log(`Returning ${availableProducts.length} available products out of ${products.length} total products`);
 
         return availableProducts;
     }

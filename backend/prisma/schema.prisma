@@ -27,10 +27,30 @@ model User {
   deleted   Boolean      @default(false)
 
   // Relations
-  products      Product[]
-  transactions  Transaction[]
+  products       Product[]
+  transactions   Transaction[]
+  refreshTokens  RefreshToken[]
 
   @@map("users")
+}
+
+model RefreshToken {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  isRevoked   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Optional: For refresh token rotation tracking
+  replacedBy  String?   // ID of the token that replaced this one
+  
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
 }
 
 

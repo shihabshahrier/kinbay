@@ -1,14 +1,18 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
+import { AuthService } from '../services/auth';
 
 // HTTP link to GraphQL server
 const httpLink = createHttpLink({
-    uri: import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000/graphql',
+    uri: (import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000') + '/graphql',
+    credentials: 'include', // Important for HTTP-only cookies
 });
 
 // Authentication link to add JWT token to headers
 const authLink = setContext((_, { headers }) => {
-    const token = localStorage.getItem('token');
+    // Try new auth system first, fallback to legacy
+    const token = AuthService.getAccessToken() || localStorage.getItem('token');
     return {
         headers: {
             ...headers,
@@ -17,9 +21,28 @@ const authLink = setContext((_, { headers }) => {
     };
 });
 
+// Simple error link - we'll handle token refresh in the auth context instead
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors) {
+        graphQLErrors.forEach((err) => {
+            // If it's a token expiration error, we'll let the auth context handle it
+            if (err.extensions?.code === 'TOKEN_EXPIRED') {
+                // Token expired - auth context will handle refresh
+            }
+        });
+    }
+
+    if (networkError) {
+        if ('statusCode' in networkError && networkError.statusCode === 401) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('token');
+        }
+    }
+});
+
 // Apollo Client configuration
 export const client = new ApolloClient({
-    link: from([authLink, httpLink]),
+    link: from([errorLink, authLink, httpLink]),
     cache: new InMemoryCache({
         typePolicies: {
             Query: {

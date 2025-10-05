@@ -3,15 +3,11 @@
  * Handles PostgreSQL timestamp format and various other date formats
  */
 export const formatDate = (dateString: string | null | undefined): string => {
-    // Debug logging to see what we're receiving
-    console.log('formatDate called with:', dateString, 'Type:', typeof dateString);
-
     // Handle null, undefined, or string representations of null
     if (!dateString ||
         dateString === 'null' ||
         dateString === 'undefined' ||
         dateString.trim() === '') {
-        console.log('Returning N/A due to null/undefined/empty');
         return 'N/A';
     }
 
@@ -20,23 +16,18 @@ export const formatDate = (dateString: string | null | undefined): string => {
 
         // Check if it's a timestamp string (all digits)
         if (/^\d+$/.test(dateString)) {
-            console.log('Detected timestamp string:', dateString);
             // Convert timestamp string to number and create date
             const timestamp = parseInt(dateString, 10);
             date = new Date(timestamp);
         } else {
             // Handle ISO date strings and other formats
-            console.log('Parsing as date string:', dateString);
             date = new Date(dateString);
         }
 
         // Check if the date is valid
         if (isNaN(date.getTime())) {
-            console.warn('Invalid date detected:', dateString, 'Parsed as:', date);
             return 'N/A';
         }
-
-        console.log('Successfully formatted date:', dateString, 'as:', date);
 
         // Return formatted date
         return date.toLocaleDateString('en-US', {
@@ -44,8 +35,7 @@ export const formatDate = (dateString: string | null | undefined): string => {
             month: 'short',
             day: 'numeric'
         });
-    } catch (error) {
-        console.error('Date parsing error:', error, 'for dateString:', dateString);
+    } catch {
         return 'N/A';
     }
 };
@@ -73,7 +63,6 @@ export const formatDateTime = (dateString: string | null | undefined): string =>
         }
 
         if (isNaN(date.getTime())) {
-            console.warn('Invalid date detected:', dateString);
             return 'N/A';
         }
 
@@ -84,8 +73,7 @@ export const formatDateTime = (dateString: string | null | undefined): string =>
             hour: '2-digit',
             minute: '2-digit'
         });
-    } catch (error) {
-        console.error('DateTime parsing error:', error, 'for dateString:', dateString);
+    } catch {
         return 'N/A';
     }
 };
