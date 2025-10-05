@@ -25,6 +25,10 @@ export async function createGraphQLServer() {
                 ...User.resolvers.mutations,
                 ...Product.resolvers.mutations,
             },
+            ...User.resolvers.User && { User: User.resolvers.User },
+            ...Product.resolvers.Product && { Product: Product.resolvers.Product },
+            ...Product.resolvers.Category && { Category: Product.resolvers.Category },
+            ...Product.resolvers.Transaction && { Transaction: Product.resolvers.Transaction },
         },
     });
 

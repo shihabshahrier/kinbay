@@ -39,4 +39,10 @@ const mutations = {
 
 }
 
-export const resolvers = { queries, mutations }
+export const resolvers = {
+    queries,
+    mutations,
+    User: {
+        id: (parent: any) => String(parent.id)
+    }
+}
