@@ -33,7 +33,6 @@ export const formatDate = (dateString: string | null | undefined): string => {
             return 'N/A';
         }
 
-        console.log('Successfully formatted date:', dateString, 'as:', date);
 
         // Return formatted date
         return date.toLocaleDateString('en-US', {
