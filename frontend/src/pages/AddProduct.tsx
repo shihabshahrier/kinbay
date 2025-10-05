@@ -6,7 +6,7 @@ import { notifications } from '@mantine/notifications';
 import { CREATE_PRODUCT } from '../lib/graphql';
 import type { ProductFormData } from '../types';
 import ProductNameStep from '../components/product/ProductNameStep';
-import CategoriesForm from '../components/product/CategoriesForm.tsx';
+import CategoriesForm from '../components/product/CategoriesForm';
 import ProductDescriptionStep from '../components/product/ProductDescriptionStep';
 import ProductPricingStep from '../components/product/ProductPricingStep';
 import ProductSummaryStep from '../components/product/ProductSummaryStep';

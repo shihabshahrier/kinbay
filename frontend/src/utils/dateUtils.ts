@@ -3,6 +3,8 @@
  * Handles PostgreSQL timestamp format and various other date formats
  */
 export const formatDate = (dateString: string | null | undefined): string => {
+    // Debug logging to see what we're receiving
+
     // Handle null, undefined, or string representations of null
     if (!dateString ||
         dateString === 'null' ||
@@ -29,14 +31,16 @@ export const formatDate = (dateString: string | null | undefined): string => {
             return 'N/A';
         }
 
+
         // Return formatted date
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
         });
-    } catch {
+    } catch (error) {
         return 'N/A';
+    }
     }
 };
 
@@ -65,7 +69,6 @@ export const formatDateTime = (dateString: string | null | undefined): string =>
         if (isNaN(date.getTime())) {
             return 'N/A';
         }
-
         return date.toLocaleString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -73,7 +76,8 @@ export const formatDateTime = (dateString: string | null | undefined): string =>
             hour: '2-digit',
             minute: '2-digit'
         });
-    } catch {
+    } catch (error) {
+        // Error parsing date, return 'N/A'
         return 'N/A';
     }
 };

@@ -23,6 +23,7 @@ const ProductDetails = () => {
         errorPolicy: 'all'
     });
 
+
     const [buyProduct, { loading: buyLoading }] = useMutation(BUY_PRODUCT, {
         onCompleted: () => {
             notifications.show({
