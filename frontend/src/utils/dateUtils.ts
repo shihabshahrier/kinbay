@@ -30,7 +30,6 @@ export const formatDate = (dateString: string | null | undefined): string => {
 
         // Check if the date is valid
         if (isNaN(date.getTime())) {
-            console.warn('Invalid date detected:', dateString, 'Parsed as:', date);
             return 'N/A';
         }
 
