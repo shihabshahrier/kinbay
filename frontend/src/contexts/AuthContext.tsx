@@ -7,6 +7,7 @@ import { isAuthenticated, logout } from '../lib/apollo-client';
 import { AuthContext, type AuthContextType } from './AuthContextTypes';
 import { AuthService } from '../services/auth';
 import { useTokenRefresh } from '../hooks/useTokenRefresh';
+import { useCacheManagement } from '../hooks/useCacheUpdates';
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -21,6 +22,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Set up automatic token refresh for new auth system
     useTokenRefresh();
+
+    // Cache management hooks
+    const { clearUserSpecificData } = useCacheManagement();
 
     const { data, loading, refetch } = useQuery(GET_CURRENT_USER, {
         skip: !isAuth,
@@ -59,6 +63,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Use legacy logout
             logout();
         }
+
+        // Clear user-specific data from Apollo cache
+        clearUserSpecificData();
+
         setUser(null);
         setIsAuth(false);
     };

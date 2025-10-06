@@ -1,45 +1,30 @@
 import { Container, Title, Card, Text, Badge, Button, Grid, Group, Alert, LoadingOverlay, Menu } from '@mantine/core';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconEdit, IconTrash, IconPlus, IconDots } from '@tabler/icons-react';
 import { modals } from '@mantine/modals';
 import { useNavigate } from 'react-router-dom';
-import { GET_MY_PRODUCTS, DELETE_PRODUCT } from '../lib/graphql';
+import { GET_MY_PRODUCTS } from '../lib/graphql';
 import { useAuth } from '../hooks/useAuth';
+import { useProductMutations } from '../hooks/useCacheUpdates';
 import type { Product } from '../types';
 
 const Dashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    const { data, loading, error, refetch } = useQuery(GET_MY_PRODUCTS, {
+    const { data, loading, error } = useQuery(GET_MY_PRODUCTS, {
         errorPolicy: 'all',
         skip: !user?.id
     });
 
-    const [deleteProduct, { loading: deleteLoading }] = useMutation(DELETE_PRODUCT, {
-        onCompleted: () => {
-            notifications.show({
-                title: 'Success',
-                message: 'Product deleted successfully',
-                color: 'green'
-            });
-            refetch();
-        },
-        onError: (error) => {
-            notifications.show({
-                title: 'Error',
-                message: error.message,
-                color: 'red'
-            });
-        }
-    });
+    const { deleteProduct, deleteLoading } = useProductMutations();
 
     const handleEdit = (productId: string) => {
         navigate(`/edit-product/${productId}`);
     };
 
-    const handleDelete = (product: Product) => {
+    const handleDelete = async (product: Product) => {
         modals.openConfirmModal({
             title: 'Delete Product',
             children: (
@@ -49,7 +34,22 @@ const Dashboard = () => {
             ),
             labels: { confirm: 'Delete', cancel: 'Cancel' },
             confirmProps: { color: 'red' },
-            onConfirm: () => deleteProduct({ variables: { id: product.id } }),
+            onConfirm: async () => {
+                try {
+                    await deleteProduct({ variables: { id: product.id } });
+                    notifications.show({
+                        title: 'Success',
+                        message: 'Product deleted successfully',
+                        color: 'green',
+                    });
+                } catch {
+                    notifications.show({
+                        title: 'Error',
+                        message: 'Failed to delete product',
+                        color: 'red',
+                    });
+                }
+            },
         });
     };
 

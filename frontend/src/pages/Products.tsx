@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Container, Title, Card, Text, Badge, Button, Grid, Group, Alert, LoadingOverlay, NumberInput, Modal, Select } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { DatePickerInput } from '@mantine/dates';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconShoppingCart, IconCalendar } from '@tabler/icons-react';
-import { GET_ALL_PRODUCTS, BUY_PRODUCT, RENT_PRODUCT } from '../lib/graphql';
+import { GET_ALL_PRODUCTS } from '../lib/graphql';
 import { useAuth } from '../hooks/useAuth';
+import { useTransactionMutations } from '../hooks/useCacheUpdates';
 import type { Product, RentFormData } from '../types';
 
 const Products = () => {
@@ -21,44 +22,7 @@ const Products = () => {
         errorPolicy: 'all'
     });
 
-    const [buyProduct, { loading: buyLoading }] = useMutation(BUY_PRODUCT, {
-        onCompleted: () => {
-            notifications.show({
-                title: 'Success',
-                message: 'Purchase request sent successfully!',
-                color: 'green'
-            });
-            setActionType(null);
-            setSelectedProduct(null);
-        },
-        onError: (error) => {
-            notifications.show({
-                title: 'Error',
-                message: error.message,
-                color: 'red'
-            });
-        }
-    });
-
-    const [rentProduct, { loading: rentLoading }] = useMutation(RENT_PRODUCT, {
-        onCompleted: () => {
-            notifications.show({
-                title: 'Success',
-                message: 'Rental request sent successfully!',
-                color: 'green'
-            });
-            setActionType(null);
-            setSelectedProduct(null);
-            rentForm.reset();
-        },
-        onError: (error) => {
-            notifications.show({
-                title: 'Error',
-                message: error.message,
-                color: 'red'
-            });
-        }
-    });
+    const { buyProduct, buyLoading, rentProduct, rentLoading } = useTransactionMutations();
 
     const rentForm = useForm<RentFormData>({
         initialValues: {
@@ -105,18 +69,33 @@ const Products = () => {
         return multiplier * (selectedProduct.priceRent || 0);
     };
 
-    const handleBuy = () => {
+    const handleBuy = async () => {
         if (!selectedProduct || !isAuthenticated) return;
 
-        buyProduct({
-            variables: {
-                productId: selectedProduct.id,
-                price: buyPrice || selectedProduct.priceBuy || 0
-            }
-        });
+        try {
+            await buyProduct({
+                variables: {
+                    productId: selectedProduct.id,
+                    price: buyPrice || selectedProduct.priceBuy || 0
+                }
+            });
+            notifications.show({
+                title: 'Success',
+                message: 'Purchase request sent successfully!',
+                color: 'green'
+            });
+            setActionType(null);
+            setSelectedProduct(null);
+        } catch {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to send purchase request',
+                color: 'red'
+            });
+        }
     };
 
-    const handleRent = (values: RentFormData) => {
+    const handleRent = async (values: RentFormData) => {
         if (!selectedProduct || !isAuthenticated || !values.startDate) return;
 
         // Ensure startDate is a proper Date object
@@ -124,14 +103,30 @@ const Products = () => {
         const endDate = calculateEndDate(startDate, values.duration, values.rentOption);
         const totalPrice = calculateTotalPrice();
 
-        rentProduct({
-            variables: {
-                productId: selectedProduct.id,
-                price: totalPrice,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString()
-            }
-        });
+        try {
+            await rentProduct({
+                variables: {
+                    productId: selectedProduct.id,
+                    price: totalPrice,
+                    startDate: startDate.toISOString(),
+                    endDate: endDate.toISOString()
+                }
+            });
+            notifications.show({
+                title: 'Success',
+                message: 'Rental request sent successfully!',
+                color: 'green'
+            });
+            setActionType(null);
+            setSelectedProduct(null);
+            rentForm.reset();
+        } catch {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to send rental request',
+                color: 'red'
+            });
+        }
     };
 
     const openBuyModal = (product: Product) => {

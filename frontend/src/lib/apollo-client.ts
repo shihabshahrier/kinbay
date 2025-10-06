@@ -40,35 +40,80 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     }
 });
 
-// Apollo Client configuration
+// Enhanced Apollo Client configuration with proper cache policies
 export const client = new ApolloClient({
     link: from([errorLink, authLink, httpLink]),
     cache: new InMemoryCache({
         typePolicies: {
             Query: {
                 fields: {
+                    // Cache policy for products - merge and avoid duplicates
                     getAllProducts: {
-                        merge(_, incoming) {
+                        merge(_, incoming: unknown[]) {
                             return incoming;
                         }
                     },
+                    // Cache policy for user transactions
                     getUserTransactions: {
-                        merge(_, incoming) {
+                        merge(_, incoming: unknown[]) {
+                            return incoming;
+                        }
+                    },
+                    // Cache policy for pending transactions
+                    getPendingTransactionsForOwner: {
+                        merge(_, incoming: unknown[]) {
+                            return incoming;
+                        }
+                    },
+                    // Cache policy for user's own products
+                    getProductsByOwner: {
+                        merge(_, incoming: unknown[]) {
                             return incoming;
                         }
                     }
                 }
+            },
+            Product: {
+                // Ensure products are normalized by ID
+                keyFields: ["id"],
+                fields: {
+                    categories: {
+                        merge(_, incoming: unknown[]) {
+                            return incoming;
+                        }
+                    }
+                }
+            },
+            User: {
+                keyFields: ["id"]
+            },
+            Transaction: {
+                keyFields: ["id"]
+            },
+            Category: {
+                keyFields: ["id"]
             }
+        },
+        // Add data ID from object to help with normalization
+        dataIdFromObject(object: Record<string, unknown>) {
+            if (object.__typename && object.id) {
+                return `${object.__typename}:${object.id}`;
+            }
+            return undefined;
         }
     }),
+    // Add default options for better cache behavior
     defaultOptions: {
         watchQuery: {
-            errorPolicy: 'all'
+            errorPolicy: 'all',
+            notifyOnNetworkStatusChange: true,
         },
         query: {
-            errorPolicy: 'all'
+            errorPolicy: 'all',
         }
-    }
+    },
+    // Enable dev tools in development
+    connectToDevTools: import.meta.env.DEV
 });
 
 // Helper function to handle authentication

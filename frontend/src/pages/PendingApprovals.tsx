@@ -1,9 +1,10 @@
 import { Container, Title, Card, Text, Badge, Button, Group, Alert, LoadingOverlay, Stack } from '@mantine/core';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconShoppingCart, IconCalendar, IconCheck } from '@tabler/icons-react';
-import { GET_PENDING_TRANSACTIONS_FOR_OWNER, COMPLETE_TRANSACTION } from '../lib/graphql';
+import { GET_PENDING_TRANSACTIONS_FOR_OWNER } from '../lib/graphql';
 import { useAuth } from '../hooks/useAuth';
+import { useTransactionMutations } from '../hooks/useCacheUpdates';
 import type { Transaction } from '../types';
 import { TransactionType } from '../types';
 import { formatDate, formatDateRange } from '../utils/dateUtils';
@@ -11,35 +12,32 @@ import { formatDate, formatDateRange } from '../utils/dateUtils';
 const PendingApprovals = () => {
     const { user } = useAuth();
 
-    const { data, loading, error, refetch } = useQuery(GET_PENDING_TRANSACTIONS_FOR_OWNER, {
+    const { data, loading, error } = useQuery(GET_PENDING_TRANSACTIONS_FOR_OWNER, {
         errorPolicy: 'all',
         skip: !user?.id
     });
 
-    const [completeTransaction, { loading: completeLoading }] = useMutation(COMPLETE_TRANSACTION, {
-        onCompleted: () => {
+    const { completeTransaction, completeLoading } = useTransactionMutations();
+
+    // Using shared date utility functions
+
+    const handleApprove = async (transactionId: string) => {
+        try {
+            await completeTransaction({
+                variables: { id: transactionId }
+            });
             notifications.show({
                 title: 'Success',
                 message: 'Transaction approved successfully!',
                 color: 'green'
             });
-            refetch();
-        },
-        onError: (error) => {
+        } catch {
             notifications.show({
                 title: 'Error',
-                message: error.message,
+                message: 'Failed to approve transaction',
                 color: 'red'
             });
         }
-    });
-
-    // Using shared date utility functions
-
-    const handleApprove = (transactionId: string) => {
-        completeTransaction({
-            variables: { id: transactionId }
-        });
     };
 
     if (loading) return <LoadingOverlay visible />;

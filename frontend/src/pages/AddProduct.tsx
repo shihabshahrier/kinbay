@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
 import { Container, Title, Button, Group, Text } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@apollo/client';
 import { notifications } from '@mantine/notifications';
-import { CREATE_PRODUCT } from '../lib/graphql';
+import { useProductMutations } from '../hooks/useCacheUpdates';
 import type { ProductFormData } from '../types';
 import ProductNameStep from '../components/product/ProductNameStep';
 import CategoriesForm from '../components/product/CategoriesForm';
@@ -23,23 +22,7 @@ const AddProduct = () => {
         categoryIds: []
     });
 
-    const [createProduct, { loading }] = useMutation(CREATE_PRODUCT, {
-        onCompleted: () => {
-            notifications.show({
-                title: 'Success',
-                message: 'Product created successfully!',
-                color: 'green'
-            });
-            navigate('/dashboard');
-        },
-        onError: (error) => {
-            notifications.show({
-                title: 'Error',
-                message: error.message,
-                color: 'red'
-            });
-        }
-    });
+    const { createProduct, createLoading } = useProductMutations();
 
     const stepTitles = [
         'Select a title for your product',
@@ -84,7 +67,7 @@ const AddProduct = () => {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (formData.priceRent && !formData.rentOption) {
             notifications.show({
                 title: 'Validation Error',
@@ -94,16 +77,30 @@ const AddProduct = () => {
             return;
         }
 
-        createProduct({
-            variables: {
-                name: formData.name,
-                description: formData.description,
-                priceBuy: formData.priceBuy,
-                priceRent: formData.priceRent,
-                rentOption: formData.rentOption,
-                categoryIds: formData.categoryIds
-            }
-        });
+        try {
+            await createProduct({
+                variables: {
+                    name: formData.name,
+                    description: formData.description,
+                    priceBuy: formData.priceBuy,
+                    priceRent: formData.priceRent,
+                    rentOption: formData.rentOption,
+                    categoryIds: formData.categoryIds
+                }
+            });
+            notifications.show({
+                title: 'Success',
+                message: 'Product created successfully!',
+                color: 'green'
+            });
+            navigate('/dashboard');
+        } catch {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to create product',
+                color: 'red'
+            });
+        }
     };
 
     const renderCurrentStep = () => {
@@ -177,7 +174,7 @@ const AddProduct = () => {
                 ) : (
                     <Button
                         onClick={handleSubmit}
-                        loading={loading}
+                        loading={createLoading}
                         color="green"
                         size="md"
                     >

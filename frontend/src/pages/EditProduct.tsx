@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Container, Title, Card, Text, Button, Group, Alert, LoadingOverlay, TextInput, Textarea, NumberInput, Select, MultiSelect, Stack } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconArrowLeft } from '@tabler/icons-react';
-import { GET_PRODUCT_BY_ID, UPDATE_PRODUCT, GET_CATEGORIES } from '../lib/graphql';
+import { GET_PRODUCT_BY_ID, GET_CATEGORIES } from '../lib/graphql';
+import { useProductMutations } from '../hooks/useCacheUpdates';
 import type { ProductFormData, Category } from '../types';
 import { RentOption } from '../types';
 
@@ -28,23 +29,7 @@ const EditProduct = () => {
 
     const { data: categoriesData } = useQuery(GET_CATEGORIES);
 
-    const [updateProduct, { loading: updateLoading }] = useMutation(UPDATE_PRODUCT, {
-        onCompleted: () => {
-            notifications.show({
-                title: 'Success',
-                message: 'Product updated successfully!',
-                color: 'green'
-            });
-            navigate('/dashboard');
-        },
-        onError: (error) => {
-            notifications.show({
-                title: 'Error',
-                message: error.message,
-                color: 'red'
-            });
-        }
-    });
+    const { updateProduct, updateLoading } = useProductMutations();
 
     useEffect(() => {
         if (productData?.getProductById) {
@@ -60,7 +45,7 @@ const EditProduct = () => {
         }
     }, [productData]);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!id) return;
 
         // Validate final form
@@ -91,17 +76,31 @@ const EditProduct = () => {
             return;
         }
 
-        updateProduct({
-            variables: {
-                id,
-                name: formData.name,
-                description: formData.description,
-                priceBuy: formData.priceBuy,
-                priceRent: formData.priceRent,
-                rentOption: formData.rentOption,
-                categoryIds: formData.categoryIds
-            }
-        });
+        try {
+            await updateProduct({
+                variables: {
+                    id,
+                    name: formData.name,
+                    description: formData.description,
+                    priceBuy: formData.priceBuy,
+                    priceRent: formData.priceRent,
+                    rentOption: formData.rentOption,
+                    categoryIds: formData.categoryIds
+                }
+            });
+            notifications.show({
+                title: 'Success',
+                message: 'Product updated successfully!',
+                color: 'green'
+            });
+            navigate('/dashboard');
+        } catch {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to update product',
+                color: 'red'
+            });
+        }
     };
 
     const rentOptions = [
