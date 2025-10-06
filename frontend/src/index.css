@@ -2,375 +2,424 @@
 
 /* Global Styles */
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-    background-attachment: fixed;
-    min-height: 100vh;
-    position: relative;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
 }
 
 /* Subtle mesh gradient overlay */
 body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-        radial-gradient(at 20% 30%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-        radial-gradient(at 80% 70%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(at 20% 30%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 70%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 #root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* Use dynamic viewport height for mobile */
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile viewport height fixes */
+@supports (min-height: 100dvh) {
+  #root {
+    min-height: 100dvh;
+  }
+}
+
+/* Ensure mobile browsers handle viewport correctly */
+@media screen and (max-width: 768px) {
+  body {
+    /* Prevent iOS safari zoom on input focus */
+    -webkit-text-size-adjust: 100%;
+    /* Ensure full viewport coverage */
+    overflow-x: hidden;
+  }
+
+  /* Fix for mobile browsers that don't handle dvh properly */
+  .mobile-full-height {
     min-height: 100vh;
-    position: relative;
-    z-index: 1;
+    min-height: 100dvh;
+  }
 }
 
 /* Glassmorphism Utilities - Modern Dark Theme */
 .glass {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .glass-dark {
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .glass-card {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .glass-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
-    border-color: rgba(147, 51, 234, 0.3);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+  border-color: rgba(147, 51, 234, 0.3);
 }
 
 .glass-button {
-    background: linear-gradient(135deg, #3B82F6, #9333EA);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1.5rem;
-    color: white;
-    font-weight: 600;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #3B82F6, #9333EA);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
 .glass-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 25px rgba(59, 130, 246, 0.6);
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(59, 130, 246, 0.6);
 }
 
 .glass-navbar {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .glass-sidebar {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* eBay-inspired Kinbay Logo */
 .kinbay-logo {
-    font-size: 1.875rem;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* Profile Button - Premium Glassmorphic Style */
 .profile-button {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
-    border-radius: 9999px;
-    padding: 0.5rem 1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    max-width: fit-content;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  max-width: fit-content;
 }
 
 .profile-button:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(147, 51, 234, 0.4);
-    box-shadow: 0 8px 24px rgba(147, 51, 234, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(147, 51, 234, 0.4);
+  box-shadow: 0 8px 24px rgba(147, 51, 234, 0.3);
 }
 
 .profile-button:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 /* Profile text container - prevent overflow */
 .profile-text {
-    max-width: 150px;
-    overflow: hidden;
+  max-width: 150px;
+  overflow: hidden;
 }
 
 .profile-text .mantine-Text-root {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Avatar Glow Effect */
 .avatar-glow {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .avatar-glow::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    background: linear-gradient(135deg, #3B82F6, #9333EA);
-    border-radius: 50%;
-    opacity: 0.5;
-    filter: blur(8px);
-    z-index: -1;
-    transition: opacity 0.3s;
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: linear-gradient(135deg, #3B82F6, #9333EA);
+  border-radius: 50%;
+  opacity: 0.5;
+  filter: blur(8px);
+  z-index: -1;
+  transition: opacity 0.3s;
 }
 
 .profile-button:hover .avatar-glow::before {
-    opacity: 0.8;
-    filter: blur(12px);
+  opacity: 0.8;
+  filter: blur(12px);
 }
 
 /* Navbar Button Styles - Premium */
 .nav-button-primary {
-    background: linear-gradient(135deg, #3B82F6, #9333EA) !important;
-    border: none !important;
-    border-radius: 0.75rem !important;
-    padding: 0.625rem 1.5rem !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: linear-gradient(135deg, #3B82F6, #9333EA) !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  padding: 0.625rem 1.5rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .nav-button-primary:hover {
-    box-shadow: 0 6px 24px rgba(147, 51, 234, 0.5) !important;
+  box-shadow: 0 6px 24px rgba(147, 51, 234, 0.5) !important;
 }
 
 .nav-button-secondary {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    border-radius: 0.75rem !important;
-    padding: 0.625rem 1.25rem !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.625rem 1.25rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
 }
 
 .nav-button-secondary:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 .kinbay-logo .letter-k {
-    color: #E53238;
+  color: #E53238;
 }
 
 .kinbay-logo .letter-i {
-    color: #0064D2;
+  color: #0064D2;
 }
 
 .kinbay-logo .letter-n {
-    color: #F5AF02;
+  color: #F5AF02;
 }
 
 .kinbay-logo .letter-b {
-    color: #86B817;
+  color: #86B817;
 }
 
 .kinbay-logo .letter-a {
-    color: #E53238;
+  color: #E53238;
 }
 
 .kinbay-logo .letter-y {
-    color: #0064D2;
+  color: #0064D2;
 }
 
 /* Badge/Tag Styles */
 .glass-badge {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    border-radius: 9999px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* Input Styles */
 .glass-input {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    color: white;
-    transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: white;
+  transition: all 0.2s ease;
 }
 
 .glass-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .glass-input:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(147, 51, 234, 0.6);
-    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2), 0 8px 24px rgba(147, 51, 234, 0.15);
+  outline: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(147, 51, 234, 0.6);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2), 0 8px 24px rgba(147, 51, 234, 0.15);
 }
 
 /* Mobile Bottom Navigation */
 .mobile-nav {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    padding: 0.5rem;
-    min-height: 65px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0.5rem;
+  min-height: 65px;
 }
 
 @media (min-width: 768px) {
-    .mobile-nav {
-        display: none !important;
-    }
+  .mobile-nav {
+    display: none !important;
+  }
 }
 
 /* Mobile nav text override */
 .mobile-nav .mantine-Text-root {
-    color: inherit !important;
+  color: inherit !important;
 }
 
 /* Mantine Overrides for Glassmorphism */
 .mantine-AppShell-root {
-    background: transparent !important;
+  background: transparent !important;
 }
 
 .mantine-AppShell-header {
-    background: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .mantine-AppShell-navbar {
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Hide navbar on mobile - show bottom nav instead */
 @media (max-width: 768px) {
-    .mantine-AppShell-navbar {
-        display: none !important;
-    }
+  .mantine-AppShell-navbar {
+    display: none !important;
+  }
+
+  /* Mobile header optimizations */
+  .mantine-AppShell-header {
+    height: 60px !important;
+    /* Slightly smaller on mobile */
+  }
+
+  /* Mobile navigation buttons */
+  .nav-button-primary,
+  .nav-button-secondary {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  /* Smaller logo on mobile */
+  .kinbay-logo {
+    font-size: 1.5rem !important;
+  }
+
+  /* Mobile header group spacing */
+  .glass-navbar .mantine-Group-root {
+    gap: 0.5rem !important;
+  }
 }
 
 .mantine-AppShell-main {
-    background: transparent !important;
+  background: transparent !important;
 }
 
 /* Add bottom padding on mobile for bottom nav */
 @media (max-width: 768px) {
-    .mantine-AppShell-main {
-        padding-bottom: 80px !important;
-    }
+  .mantine-AppShell-main {
+    padding-bottom: 80px !important;
+  }
 }
 
 /* Override Mantine Cards */
 .mantine-Card-root {
-    background: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* Override Mantine Paper - CRITICAL for forms */
 .mantine-Paper-root {
-    background: transparent !important;
+  background: transparent !important;
 }
 
 /* Auth page Paper (Login/Register) - Dark glassmorphic */
 .mantine-Paper-root.glass-card {
-    background: rgba(15, 23, 42, 0.85) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Override Mantine Buttons */
 .mantine-Button-root {
-    border-radius: 0.75rem;
-    transition: all 0.3s;
+  border-radius: 0.75rem;
+  transition: all 0.3s;
 }
 
 /* Primary/Filled buttons - gradient */
 .mantine-Button-root:not(.mantine-Button-subtle):not(.mantine-Button-light):not([data-variant="subtle"]):not([data-variant="light"]) {
-    background: linear-gradient(135deg, #3B82F6, #9333EA) !important;
-    border: none !important;
+  background: linear-gradient(135deg, #3B82F6, #9333EA) !important;
+  border: none !important;
 }
 
 /* Secondary/Subtle/Light buttons - visible glassmorphic */
@@ -378,234 +427,234 @@ body::before {
 .mantine-Button-root[data-variant="light"],
 .mantine-Button-root.mantine-Button-subtle,
 .mantine-Button-root.mantine-Button-light {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .mantine-Button-root[data-variant="subtle"]:hover,
 .mantine-Button-root[data-variant="light"]:hover,
 .mantine-Button-root.mantine-Button-subtle:hover,
 .mantine-Button-root.mantine-Button-light:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 .mantine-Button-root:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 /* Override Mantine Modal */
 .mantine-Modal-content {
-    background: rgba(15, 23, 42, 0.95) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border-radius: 1rem;
 }
 
 .mantine-Modal-header {
-    background: transparent !important;
+  background: transparent !important;
 }
 
 .mantine-Modal-title {
-    color: white;
-    font-weight: 700;
-    font-size: 1.25rem;
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
 }
 
 /* Override Mantine Menu */
 .mantine-Menu-dropdown {
-    background: rgba(255, 255, 255, 0.2) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
 }
 
 .mantine-Menu-item {
-    border-radius: 0.5rem;
-    transition: all 0.2s;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
 }
 
 .mantine-Menu-item:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Premium Profile Dropdown */
 .profile-dropdown {
-    background: rgba(15, 23, 42, 0.98) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(147, 51, 234, 0.1) inset !important;
-    border-radius: 1rem !important;
-    padding: 0 !important;
-    min-width: 280px !important;
-    overflow: hidden !important;
+  background: rgba(15, 23, 42, 0.98) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(147, 51, 234, 0.1) inset !important;
+  border-radius: 1rem !important;
+  padding: 0 !important;
+  min-width: 280px !important;
+  overflow: hidden !important;
 }
 
 /* Profile Dropdown Header */
 .profile-dropdown-header {
-    padding: 1.25rem;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.15));
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.15));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 }
 
 .profile-dropdown-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #3B82F6, #9333EA);
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3B82F6, #9333EA);
 }
 
 /* Profile Menu Items */
 .profile-menu-item {
-    padding: 1rem 1.25rem !important;
-    border-radius: 0 !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    position: relative !important;
-    overflow: hidden !important;
-    color: rgba(255, 255, 255, 0.95) !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 .profile-menu-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, #3B82F6, #9333EA);
-    transform: translateX(-3px);
-    transition: transform 0.2s;
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #3B82F6, #9333EA);
+  transform: translateX(-3px);
+  transition: transform 0.2s;
 }
 
 .profile-menu-item:hover::before {
-    transform: translateX(0);
+  transform: translateX(0);
 }
 
 .profile-menu-item:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .profile-menu-item .mantine-Text-root {
-    color: inherit !important;
+  color: inherit !important;
 }
 
 .profile-menu-item [data-dimmed="true"],
 .profile-menu-item [c="dimmed"],
 .profile-menu-item .mantine-Text-root[c="dimmed"] {
-    color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Logout Item - Special styling */
 .logout-item:hover {
-    background: rgba(239, 68, 68, 0.15) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
 }
 
 .logout-item:hover::before {
-    background: linear-gradient(180deg, #EF4444, #DC2626) !important;
+  background: linear-gradient(180deg, #EF4444, #DC2626) !important;
 }
 
 /* Menu item icons */
 .profile-menu-item .mantine-Menu-itemSection {
-    color: rgba(255, 255, 255, 0.7);
-    transition: color 0.2s;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s;
 }
 
 .profile-menu-item:hover .mantine-Menu-itemSection {
-    color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /* Override Mantine Badge */
 .mantine-Badge-root {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    border-radius: 9999px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* Text in modals and papers - white for dark theme */
 .mantine-Modal-content .mantine-Text-root,
 .mantine-Paper-root .mantine-Text-root {
-    color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* Text on gradient background - white */
 .mantine-AppShell-main .mantine-Text-root,
 .mantine-Card-root .mantine-Text-root {
-    color: rgba(255, 255, 255, 0.95) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* Text color overrides */
 .text-dimmed,
 [data-dimmed="true"] {
-    color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* Error text and helper text */
 .mantine-InputWrapper-error,
 .mantine-Input-error {
-    color: #dc2626 !important;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.375rem;
-    font-weight: 600;
+  color: #dc2626 !important;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
 }
 
 /* Links in auth pages - purple accent */
 .mantine-Paper-root a,
 .mantine-Modal-content a {
-    color: #a78bfa !important;
-    font-weight: 600 !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
+  color: #a78bfa !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
 }
 
 .mantine-Paper-root a:hover,
 .mantine-Modal-content a:hover {
-    color: #c4b5fd !important;
-    text-decoration: underline !important;
+  color: #c4b5fd !important;
+  text-decoration: underline !important;
 }
 
 /* Alert Override */
 .mantine-Alert-root {
-    background: rgba(255, 255, 255, 0.25) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
-    border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  border-radius: 0.75rem;
 }
 
 .mantine-Alert-title,
 .mantine-Alert-message {
-    color: white !important;
-    font-weight: 600 !important;
+  color: white !important;
+  font-weight: 600 !important;
 }
 
 /* Error alert - make it more visible */
 .mantine-Alert-root[data-variant="filled"] {
-    background: rgba(239, 68, 68, 0.3) !important;
-    border: 1px solid rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.3) !important;
+  border: 1px solid rgba(239, 68, 68, 0.5);
 }
 
 /* Success alert */
 .mantine-Alert-root[data-variant="light"][data-color="green"] {
-    background: rgba(34, 197, 94, 0.3) !important;
-    border: 1px solid rgba(34, 197, 94, 0.5);
+  background: rgba(34, 197, 94, 0.3) !important;
+  border: 1px solid rgba(34, 197, 94, 0.5);
 }
 
 /* Input Override - Glassmorphic with High Contrast */
@@ -618,19 +667,19 @@ input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"] {
-    background: rgba(255, 255, 255, 0.12) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 2px solid rgba(255, 255, 255, 0.25) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-    border-radius: 0.75rem !important;
-    padding: 0.875rem 1rem !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    font-size: 1.05rem !important;
-    -webkit-text-fill-color: #ffffff !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-    transition: all 0.2s ease !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.875rem 1rem !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 1.05rem !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s ease !important;
 }
 
 .mantine-Input-input::placeholder,
@@ -639,10 +688,10 @@ input.mantine-Input-input::placeholder,
 .mantine-PasswordInput-input::placeholder,
 .mantine-NumberInput-input::placeholder,
 input::placeholder {
-    color: rgba(255, 255, 255, 0.6) !important;
-    opacity: 1 !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
-    font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
+  font-weight: 500 !important;
 }
 
 .mantine-TextInput-root input,
@@ -651,19 +700,19 @@ input::placeholder {
 .mantine-Select-root input,
 .mantine-Textarea-root textarea,
 .mantine-Select-input {
-    background: rgba(255, 255, 255, 0.12) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 2px solid rgba(255, 255, 255, 0.25) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-    border-radius: 0.75rem !important;
-    padding: 0.875rem 1rem !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    font-size: 1.05rem !important;
-    -webkit-text-fill-color: #ffffff !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-    transition: all 0.2s ease !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.875rem 1rem !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 1.05rem !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s ease !important;
 }
 
 .mantine-TextInput-root input::placeholder,
@@ -671,10 +720,10 @@ input::placeholder {
 .mantine-NumberInput-root input::placeholder,
 .mantine-Select-root input::placeholder,
 .mantine-Textarea-root textarea::placeholder {
-    color: rgba(255, 255, 255, 0.6) !important;
-    opacity: 1 !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
-    font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
+  font-weight: 500 !important;
 }
 
 /* Label styling - Clean and modern - HIGHLY VISIBLE */
@@ -687,97 +736,97 @@ input::placeholder {
 .mantine-DatePickerInput-label,
 .mantine-DateInput-label,
 label {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    font-size: 0.9rem !important;
-    margin-bottom: 0.5rem !important;
-    letter-spacing: 0.025em !important;
-    text-transform: uppercase !important;
-    -webkit-text-fill-color: #ffffff !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
-    display: block !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 0.5rem !important;
+  letter-spacing: 0.025em !important;
+  text-transform: uppercase !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+  display: block !important;
 }
 
 /* DatePicker input styling */
 .mantine-DatePickerInput-input,
 .mantine-DateInput-input {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-    color: #ffffff !important;
-    font-weight: 500 !important;
-    font-size: 1rem !important;
-    -webkit-text-fill-color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 1rem !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 .mantine-DatePickerInput-input::placeholder,
 .mantine-DateInput-input::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-    opacity: 1 !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Date picker dropdown */
 .mantine-DatePicker-dropdown,
 .mantine-Popover-dropdown {
-    background: rgba(255, 255, 255, 0.25) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 1rem;
 }
 
 .mantine-DatePicker-day {
-    color: white;
+  color: white;
 }
 
 .mantine-DatePicker-day:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Container adjustments */
 .mantine-Container-root {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    max-width: 100% !important;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  max-width: 100% !important;
 }
 
 @media (min-width: 768px) {
-    .mantine-Container-root {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
+  .mantine-Container-root {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
 
 @media (min-width: 1024px) {
-    .mantine-Container-root {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
+  .mantine-Container-root {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 /* Responsive Grid for Products */
 .mantine-Grid-root {
-    margin: 0 !important;
+  margin: 0 !important;
 }
 
 .mantine-Grid-col {
-    padding: 0.5rem !important;
+  padding: 0.5rem !important;
 }
 
 @media (max-width: 768px) {
-    .mantine-Grid-col {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
+  .mantine-Grid-col {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-    .mantine-Grid-col[data-span="4"] {
-        flex: 0 0 50% !important;
-        max-width: 50% !important;
-    }
+  .mantine-Grid-col[data-span="4"] {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
 }
 
 /* Title Styles */
@@ -788,8 +837,8 @@ h3,
 h4,
 h5,
 h6 {
-    color: white !important;
-    font-weight: 700;
+  color: white !important;
+  font-weight: 700;
 }
 
 /* Input focus state - enhanced visibility with glow */
@@ -798,96 +847,96 @@ h6 {
 .mantine-PasswordInput-input:focus,
 input:focus,
 textarea:focus {
-    color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.18) !important;
-    border-color: rgba(147, 51, 234, 0.7) !important;
-    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.25), 0 8px 24px rgba(147, 51, 234, 0.2) !important;
-    outline: none !important;
-    -webkit-text-fill-color: #ffffff !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(147, 51, 234, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.25), 0 8px 24px rgba(147, 51, 234, 0.2) !important;
+  outline: none !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Animation Utilities */
 .fade-in {
-    animation: fadeIn 0.5s ease-in;
+  animation: fadeIn 0.5s ease-in;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .slide-up {
-    animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.4s ease-out;
 }
 
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Typography */
 h1 {
-    font-size: 1.875rem;
-    font-weight: 700;
+  font-size: 1.875rem;
+  font-weight: 700;
 }
 
 h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 p {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 
 @media (min-width: 768px) {
-    h1 {
-        font-size: 2.25rem;
-    }
+  h1 {
+    font-size: 2.25rem;
+  }
 
-    h2 {
-        font-size: 1.875rem;
-    }
+  h2 {
+    font-size: 1.875rem;
+  }
 
-    h3 {
-        font-size: 1.5rem;
-    }
+  h3 {
+    font-size: 1.5rem;
+  }
 
-    p {
-        font-size: 1.125rem;
-    }
+  p {
+    font-size: 1.125rem;
+  }
 }
 
 @media (min-width: 1024px) {
-    h1 {
-        font-size: 3rem;
-    }
+  h1 {
+    font-size: 3rem;
+  }
 
-    h2 {
-        font-size: 2.25rem;
-    }
+  h2 {
+    font-size: 2.25rem;
+  }
 
-    h3 {
-        font-size: 1.875rem;
-    }
+  h3 {
+    font-size: 1.875rem;
+  }
 }

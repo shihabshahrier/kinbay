@@ -23,7 +23,7 @@ const Layout = ({ children }: LayoutProps) => {
 
     return (
         <AppShell
-            header={{ height: 70 }}
+            header={{ height: { base: 60, sm: 70 } }}
             navbar={{
                 width: 280,
                 breakpoint: 'sm'
@@ -31,7 +31,7 @@ const Layout = ({ children }: LayoutProps) => {
             padding="md"
         >
             <AppShell.Header>
-                <Group h="100%" px="md" justify="space-between" className="glass-navbar">
+                <Group h="100%" px="md" justify="space-between" className="glass-navbar" gap="sm">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -142,7 +142,11 @@ const Layout = ({ children }: LayoutProps) => {
                                         to="/login"
                                         leftSection={<IconLogin size={16} />}
                                         className="nav-button-secondary"
-                                        size="md"
+                                        size="sm"
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            padding: '0.5rem 1rem'
+                                        }}
                                     >
                                         Login
                                     </Button>
@@ -155,7 +159,11 @@ const Layout = ({ children }: LayoutProps) => {
                                         component={Link}
                                         to="/register"
                                         className="nav-button-primary"
-                                        size="md"
+                                        size="sm"
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            padding: '0.5rem 1rem'
+                                        }}
                                     >
                                         Register
                                     </Button>

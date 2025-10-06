@@ -65,12 +65,29 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
-            <Container size={580}>
+        <div
+            className="mobile-full-height"
+            style={{
+                minHeight: '100dvh', // Use dynamic viewport height for mobile (fallback to 100vh automatically)
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '1rem',
+                position: 'relative',
+                overflow: 'auto',
+                width: '100%'
+            }}
+        >
+            <Container size={580} style={{ width: '100%', maxWidth: '580px' }}>
                 <motion.div
                     initial={{ opacity: 0, y: -30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
+                    style={{
+                        padding: '1rem 0',
+                        minHeight: 'fit-content',
+                        width: '100%'
+                    }}
                 >
                     <div className="text-center mb-8">
                         <div className="kinbay-logo text-5xl mb-4 inline-block">
@@ -86,7 +103,7 @@ const Register = () => {
                         </Title>
                     </div>
 
-                    <Paper className="glass-card" p={40} radius="xl">
+                    <Paper className="glass-card" p={{ base: 20, sm: 40 }} radius="xl">
                         <form onSubmit={form.onSubmit(handleSubmit)}>
                             {error && (
                                 <Alert
