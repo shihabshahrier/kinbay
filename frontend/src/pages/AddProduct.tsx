@@ -121,7 +121,14 @@ const AddProduct = () => {
     };
 
     return (
-        <Container size="lg">
+        <Container
+            size="lg"
+            p={{ base: "md", sm: "xl" }}
+            style={{
+                marginTop: '1rem',
+                marginBottom: '2rem'
+            }}
+        >
             <Group justify="space-between" align="center" mb="xl">
                 <Title order={2}>Create product</Title>
                 <Text c="dimmed">PART {currentStep + 1}</Text>

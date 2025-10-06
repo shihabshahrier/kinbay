@@ -32,10 +32,10 @@ const ProductPricingStep = ({ data, onChange }: ProductPricingStepProps) => {
     ];
 
     return (
-        <Stack align="center" mt="xl">
+        <Stack align="center" mt="xl" px={{ base: "md", sm: 0 }}>
             <Text size="lg" fw={500} mb="md">Select Pricing Options</Text>
 
-            <Group mb="xl">
+            <Group mb="xl" justify="center" wrap="wrap" gap="sm">
                 <Card
                     shadow="sm"
                     padding="lg"
@@ -82,7 +82,7 @@ const ProductPricingStep = ({ data, onChange }: ProductPricingStepProps) => {
                 </Card>
             </Group>
 
-            <Stack w={400}>
+            <Stack w={{ base: "100%", sm: 400 }} maw={400}>
                 {(pricingType === 'buy' || pricingType === 'both') && (
                     <NumberInput
                         label="Sale Price"

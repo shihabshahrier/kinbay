@@ -8,7 +8,7 @@ interface ProductNameStepProps {
 
 const ProductNameStep = ({ data, onChange }: ProductNameStepProps) => {
     return (
-        <Stack align="center" mt="xl">
+        <Stack align="center" mt="xl" px={{ base: "md", sm: 0 }}>
             <TextInput
                 label="Product Name"
                 placeholder="Enter product name"
@@ -16,7 +16,8 @@ const ProductNameStep = ({ data, onChange }: ProductNameStepProps) => {
                 onChange={(event) => onChange({ name: event.currentTarget.value })}
                 required
                 size="lg"
-                w={400}
+                w={{ base: "100%", sm: 400 }}
+                maw={400}
             />
         </Stack>
     );

@@ -36,7 +36,7 @@ const CategoriesForm = ({ data, onChange }: CategoriesFormProps) => {
     }));
 
     return (
-        <Stack align="center" mt="xl">
+        <Stack align="center" mt="xl" px={{ base: "md", sm: 0 }}>
             <MultiSelect
                 label="Select Categories"
                 placeholder="Choose categories for your product"
@@ -47,7 +47,8 @@ const CategoriesForm = ({ data, onChange }: CategoriesFormProps) => {
                 clearable
                 required
                 size="lg"
-                w={500}
+                w={{ base: "100%", sm: 500 }}
+                maw={500}
             />
         </Stack>
     );

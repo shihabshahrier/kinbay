@@ -8,7 +8,7 @@ interface ProductDescriptionStepProps {
 
 const ProductDescriptionStep = ({ data, onChange }: ProductDescriptionStepProps) => {
     return (
-        <Stack align="center" mt="xl">
+        <Stack align="center" mt="xl" px={{ base: "md", sm: 0 }}>
             <Textarea
                 label="Product Description"
                 placeholder="Enter product description"
@@ -18,7 +18,8 @@ const ProductDescriptionStep = ({ data, onChange }: ProductDescriptionStepProps)
                 maxRows={8}
                 required
                 size="lg"
-                w={500}
+                w={{ base: "100%", sm: 500 }}
+                maw={500}
             />
         </Stack>
     );

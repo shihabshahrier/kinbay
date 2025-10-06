@@ -7,10 +7,10 @@ interface ProductSummaryStepProps {
 
 const ProductSummaryStep = ({ data }: ProductSummaryStepProps) => {
     return (
-        <Stack align="center" mt="xl">
+        <Stack align="center" mt="xl" px={{ base: "md", sm: 0 }}>
             <Text size="xl" fw={600} mb="lg">Product Summary</Text>
 
-            <Card shadow="md" padding="xl" radius="md" withBorder w={500}>
+            <Card shadow="md" padding="xl" radius="md" withBorder w={{ base: "100%", sm: 500 }} maw={500}>
                 <Stack gap="md">
                     <div>
                         <Text fw={500} size="sm" c="dimmed" mb={4}>Product Name</Text>
