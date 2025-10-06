@@ -190,6 +190,7 @@ export const BUY_PRODUCT = gql`
         id
         name
         owner {
+          id
           firstname
           lastname
         }
@@ -217,6 +218,7 @@ export const RENT_PRODUCT = gql`
         id
         name
         owner {
+          id
           firstname
           lastname
         }
@@ -266,6 +268,7 @@ export const GET_USER_TRANSACTIONS = gql`
           id
           name
           owner {
+            id
             firstname
             lastname
           }
@@ -278,6 +281,7 @@ export const GET_USER_TRANSACTIONS = gql`
         status
         price
         user {
+          id
           firstname
           lastname
         }
@@ -298,6 +302,7 @@ export const GET_USER_TRANSACTIONS = gql`
           id
           name
           owner {
+            id
             firstname
             lastname
           }
@@ -312,6 +317,7 @@ export const GET_USER_TRANSACTIONS = gql`
         startDate
         endDate
         user {
+          id
           firstname
           lastname
         }

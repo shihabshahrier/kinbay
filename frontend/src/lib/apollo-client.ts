@@ -94,11 +94,14 @@ export const client = new ApolloClient({
                 keyFields: ["id"]
             }
         },
-        // Add data ID from object to help with normalization
+        // Enhanced data ID from object to handle missing id gracefully
         dataIdFromObject(object: Record<string, unknown>) {
+            // Only normalize objects that have both __typename and id
             if (object.__typename && object.id) {
                 return `${object.__typename}:${object.id}`;
             }
+            // For objects without id (like partial User objects), don't normalize
+            // This prevents cache normalization errors
             return undefined;
         }
     }),

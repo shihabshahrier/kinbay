@@ -41,12 +41,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Support both auth systems
         localStorage.setItem('token', token); // Legacy
         localStorage.setItem('accessToken', token); // New system
+
+        // Clear any corrupted cache data to ensure fresh queries
+        clearUserSpecificData();
+
         setIsAuth(true);
         refetch();
     };
 
     const handleLoginNew = async (email: string, password: string) => {
         const tokens = await AuthService.login(email, password);
+
+        // Clear any corrupted cache data to ensure fresh queries
+        clearUserSpecificData();
+
         setIsAuth(true);
         refetch();
         return tokens;
