@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { useQuery } from '@apollo/client';
-import { GET_CURRENT_USER } from '../lib/graphql';
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_CURRENT_USER, LOGIN_USER, LOGOUT_USER } from '../lib/graphql';
 import type { User } from '../types';
 import { isAuthenticated, logout } from '../lib/apollo-client';
 import { AuthContext, type AuthContextType } from './AuthContextTypes';
-import { AuthService } from '../services/auth';
+import { AuthService, type AuthTokens } from '../services/auth';
 import { useTokenRefresh } from '../hooks/useTokenRefresh';
 import { useCacheManagement } from '../hooks/useCacheUpdates';
 
@@ -26,6 +26,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Cache management hooks
     const { clearUserSpecificData } = useCacheManagement();
 
+    // GraphQL mutations
+    const [loginUserMutation] = useMutation(LOGIN_USER);
+    const [logoutUserMutation] = useMutation(LOGOUT_USER);
+
     const { data, loading, refetch } = useQuery(GET_CURRENT_USER, {
         skip: !isAuth,
         errorPolicy: 'all'
@@ -38,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, [data]);
 
     const handleLogin = (token: string) => {
-        // Support both auth systems
+        // Support legacy auth system
         localStorage.setItem('token', token); // Legacy
         localStorage.setItem('accessToken', token); // New system
 
@@ -49,34 +53,62 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         refetch();
     };
 
-    const handleLoginNew = async (email: string, password: string) => {
-        const tokens = await AuthService.login(email, password);
+    const handleLoginNew = async (email: string, password: string): Promise<AuthTokens> => {
+        try {
+            const result = await loginUserMutation({
+                variables: { email, password }
+            });
 
-        // Clear any corrupted cache data to ensure fresh queries
-        clearUserSpecificData();
+            if (result.data?.loginUser) {
+                const { accessToken, refreshToken } = result.data.loginUser;
 
-        setIsAuth(true);
-        refetch();
-        return tokens;
+                // Store tokens
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+
+                // Clear any corrupted cache data to ensure fresh queries
+                clearUserSpecificData();
+
+                setIsAuth(true);
+                await refetch();
+
+                return { accessToken, refreshToken };
+            }
+
+            throw new Error('No login data received');
+        } catch (error) {
+            console.error('Login failed:', error);
+            const message = error instanceof Error ? error.message : 'Login failed';
+            throw new Error(message);
+        }
     };
 
     const handleLogout = async () => {
-        // Check which auth system to use at runtime
-        const useNewAuth = AuthService.shouldUseNewAuth();
+        try {
+            const refreshToken = localStorage.getItem('refreshToken');
 
-        if (useNewAuth && AuthService.isAuthenticated()) {
-            // Use new logout system
-            await AuthService.logout();
-        } else {
-            // Use legacy logout
-            logout();
+            if (refreshToken && AuthService.isAuthenticated()) {
+                // Use GraphQL mutation for logout
+                await logoutUserMutation({
+                    variables: { refreshToken }
+                });
+            } else if (localStorage.getItem('token')) {
+                // Use legacy logout
+                logout();
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Continue with logout even if server request fails
+        } finally {
+            // Always clear local storage and state
+            AuthService.clearTokens();
+
+            // Clear user-specific data from Apollo cache
+            clearUserSpecificData();
+
+            setUser(null);
+            setIsAuth(false);
         }
-
-        // Clear user-specific data from Apollo cache
-        clearUserSpecificData();
-
-        setUser(null);
-        setIsAuth(false);
     };
 
     const contextValue: AuthContextType = {

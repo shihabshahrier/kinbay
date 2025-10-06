@@ -5,82 +5,140 @@ export interface AuthTokens {
 
 export class AuthService {
     private static readonly ACCESS_TOKEN_KEY = 'accessToken';
+    private static readonly REFRESH_TOKEN_KEY = 'refreshToken';
 
-    // Login with secure 2-token system (HTTP-only cookies)
+    // Login with GraphQL mutation
     static async login(email: string, password: string): Promise<AuthTokens> {
-        const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/auth/login', {
+        const response = await fetch((import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000') + '/graphql', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include', // Important for cookies
-            body: JSON.stringify({ email, password }),
+            credentials: 'include',
+            body: JSON.stringify({
+                query: `
+                    mutation LoginUser($email: String!, $password: String!) {
+                        loginUser(email: $email, password: $password) {
+                            accessToken
+                            refreshToken
+                        }
+                    }
+                `,
+                variables: { email, password }
+            }),
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Login failed');
+        const result = await response.json();
+
+        if (result.errors) {
+            throw new Error(result.errors[0].message);
         }
 
-        const result = await response.json();
-        const accessToken = result.accessToken;
+        const { accessToken, refreshToken } = result.data.loginUser;
 
-        // Store access token in localStorage
+        // Store both tokens in localStorage
         localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+        localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
 
-        // Refresh token is automatically stored in HTTP-only cookie by server
-        // It's not accessible to JavaScript (secure against XSS)
-
-        return {
-            accessToken,
-            refreshToken: '[SECURE_HTTP_ONLY_COOKIE]' // Placeholder - actual token is in cookie
-        };
+        return { accessToken, refreshToken };
     }
 
-    // Refresh access token
+    // Refresh access token using GraphQL
     static async refreshToken(): Promise<string | null> {
         try {
-            const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/auth/refresh', {
+            const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+            if (!refreshToken) {
+                throw new Error('No refresh token available');
+            }
+
+            const response = await fetch((import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000') + '/graphql', {
                 method: 'POST',
-                credentials: 'include', // Send HTTP-only cookie
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    query: `
+                        mutation RefreshTokens($refreshToken: String!) {
+                            refreshTokens(refreshToken: $refreshToken) {
+                                accessToken
+                                refreshToken
+                            }
+                        }
+                    `,
+                    variables: { refreshToken }
+                }),
             });
 
-            if (response.ok) {
-                const { accessToken } = await response.json();
-                localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
-                return accessToken;
-            }
-        } catch {
-            // Token refresh failed
-        }
+            const result = await response.json();
 
-        return null;
+            if (result.errors) {
+                throw new Error(result.errors[0].message);
+            }
+
+            const { accessToken, refreshToken: newRefreshToken } = result.data.refreshTokens;
+            localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+            localStorage.setItem(this.REFRESH_TOKEN_KEY, newRefreshToken);
+
+            return accessToken;
+        } catch (error) {
+            console.error('Token refresh failed:', error);
+            // Clear invalid tokens
+            this.clearTokens();
+            return null;
+        }
     }
 
-    // Logout
+    // Logout using GraphQL
     static async logout(): Promise<void> {
         try {
-            await fetch(import.meta.env.VITE_BACKEND_URL + '/auth/logout', {
-                method: 'POST',
-                credentials: 'include',
-            });
-        } catch {
-            // Logout request failed
+            const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+
+            if (refreshToken) {
+                await fetch((import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000') + '/graphql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        query: `
+                            mutation LogoutUser($refreshToken: String!) {
+                                logoutUser(refreshToken: $refreshToken)
+                            }
+                        `,
+                        variables: { refreshToken }
+                    }),
+                });
+            }
+        } catch (error) {
+            console.error('Logout request failed:', error);
         } finally {
             // Always clear local storage
-            localStorage.removeItem(this.ACCESS_TOKEN_KEY);
-            localStorage.removeItem('token'); // Legacy token cleanup
+            this.clearTokens();
         }
+    }
+
+    // Clear all tokens
+    static clearTokens(): void {
+        localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+        localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+        localStorage.removeItem('token'); // Legacy token cleanup
     }
 
     // Check if user is authenticated
     static isAuthenticated(): boolean {
-        return !!localStorage.getItem(this.ACCESS_TOKEN_KEY);
+        return !!localStorage.getItem(this.ACCESS_TOKEN_KEY) && !!localStorage.getItem(this.REFRESH_TOKEN_KEY);
     }
 
     // Get access token
     static getAccessToken(): string | null {
         return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+    }
+
+    // Get refresh token
+    static getRefreshToken(): string | null {
+        return localStorage.getItem(this.REFRESH_TOKEN_KEY);
     }
 
     // Legacy login support (for backward compatibility)

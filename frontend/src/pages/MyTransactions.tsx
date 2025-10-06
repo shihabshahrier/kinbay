@@ -12,7 +12,7 @@ const MyTransactions = () => {
 
     const { data, loading, error } = useQuery(GET_USER_TRANSACTIONS, {
         errorPolicy: 'all',
-        fetchPolicy: 'cache-and-network', // Force refetch to get corrected data
+        fetchPolicy: 'cache-first', // Use cache first, only fetch if not cached
         skip: !user?.id
     });
 

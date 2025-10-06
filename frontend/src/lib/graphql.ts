@@ -13,6 +13,31 @@ export const GET_TOKEN = gql`
   }
 `;
 
+// New auth system with refresh tokens
+export const LOGIN_USER = gql`
+  mutation LoginUser($email: String!, $password: String!) {
+    loginUser(email: $email, password: $password) {
+      accessToken
+      refreshToken
+    }
+  }
+`;
+
+export const REFRESH_TOKENS = gql`
+  mutation RefreshTokens($refreshToken: String!) {
+    refreshTokens(refreshToken: $refreshToken) {
+      accessToken
+      refreshToken
+    }
+  }
+`;
+
+export const LOGOUT_USER = gql`
+  mutation LogoutUser($refreshToken: String) {
+    logoutUser(refreshToken: $refreshToken)
+  }
+`;
+
 // User Queries
 export const GET_CURRENT_USER = gql`
   query GetCurrentUser {

@@ -3,16 +3,97 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { AuthService } from '../services/auth';
 
+// Token refresh function
+const refreshTokens = async (): Promise<{ accessToken: string; refreshToken: string } | null> => {
+    try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+            throw new Error('No refresh token available');
+        }
+
+        const response = await fetch((import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000') + '/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                query: `
+                    mutation RefreshTokens($refreshToken: String!) {
+                        refreshTokens(refreshToken: $refreshToken) {
+                            accessToken
+                            refreshToken
+                        }
+                    }
+                `,
+                variables: { refreshToken }
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.errors || !data.data?.refreshTokens) {
+            throw new Error(data.errors?.[0]?.message || 'Failed to refresh token');
+        }
+
+        const { accessToken, refreshToken: newRefreshToken } = data.data.refreshTokens;
+
+        // Update stored tokens
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', newRefreshToken);
+
+        return { accessToken, refreshToken: newRefreshToken };
+    } catch (error) {
+        console.error('Token refresh failed:', error);
+
+        // Clear invalid tokens
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('token'); // Legacy cleanup
+
+        // Redirect to login if we're not already there
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+            window.location.href = '/login';
+        }
+
+        return null;
+    }
+};
+
 // HTTP link to GraphQL server
 const httpLink = createHttpLink({
     uri: (import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000') + '/graphql',
     credentials: 'include', // Important for HTTP-only cookies
 });
 
-// Authentication link to add JWT token to headers
-const authLink = setContext((_, { headers }) => {
-    // Try new auth system first, fallback to legacy
-    const token = AuthService.getAccessToken() || localStorage.getItem('token');
+// Enhanced authentication link with token refresh
+const authLink = setContext(async (_, { headers }) => {
+    let token = AuthService.getAccessToken() || localStorage.getItem('token');
+
+    // Check if token is expired and refresh if needed
+    if (token && token !== localStorage.getItem('token')) { // New auth system token
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+
+            // If token expires in less than 2 minutes, refresh it proactively
+            if (payload.exp && payload.exp - currentTime < 120) {
+                console.log('Access token expiring soon, refreshing...');
+                const refreshResult = await refreshTokens();
+                if (refreshResult) {
+                    token = refreshResult.accessToken;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking token expiration:', error);
+            // If we can't decode the token, try to refresh it
+            const refreshResult = await refreshTokens();
+            if (refreshResult) {
+                token = refreshResult.accessToken;
+            }
+        }
+    }
+
     return {
         headers: {
             ...headers,
@@ -21,21 +102,45 @@ const authLink = setContext((_, { headers }) => {
     };
 });
 
-// Simple error link - we'll handle token refresh in the auth context instead
-const errorLink = onError(({ graphQLErrors, networkError }) => {
+// Enhanced error link with automatic retry on authentication errors
+const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
     if (graphQLErrors) {
         graphQLErrors.forEach((err) => {
-            // If it's a token expiration error, we'll let the auth context handle it
-            if (err.extensions?.code === 'TOKEN_EXPIRED') {
-                // Token expired - auth context will handle refresh
+            console.error(`GraphQL error: ${err.message}`);
+
+            // Handle authentication errors
+            if (err.extensions?.code === 'UNAUTHENTICATED' ||
+                err.message.includes('jwt') ||
+                err.message.includes('token') ||
+                err.message.includes('Not authenticated')) {
+
+                console.log('Authentication error detected, attempting token refresh...');
+
+                // Try to refresh token and retry the operation
+                refreshTokens().then(result => {
+                    if (result) {
+                        console.log('Token refreshed successfully, retrying operation...');
+                        // The operation will be retried automatically with the new token
+                        return forward(operation);
+                    }
+                });
             }
         });
     }
 
     if (networkError) {
+        console.error(`Network error: ${networkError}`);
+
+        // Handle 401 Unauthorized
         if ('statusCode' in networkError && networkError.statusCode === 401) {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('token');
+            console.log('401 Unauthorized, attempting token refresh...');
+
+            refreshTokens().then(result => {
+                if (result) {
+                    console.log('Token refreshed successfully, retrying operation...');
+                    return forward(operation);
+                }
+            });
         }
     }
 });
@@ -53,10 +158,18 @@ export const client = new ApolloClient({
                             return incoming;
                         }
                     },
-                    // Cache policy for user transactions
+                    // Cache policy for user transactions - handle nested structure
                     getUserTransactions: {
-                        merge(_, incoming: unknown[]) {
-                            return incoming;
+                        merge(existing, incoming) {
+                            // Handle the nested structure: { bought: [], sold: [], borrowed: [], lent: [] }
+                            if (!existing) return incoming;
+
+                            return {
+                                bought: incoming?.bought || existing?.bought || [],
+                                sold: incoming?.sold || existing?.sold || [],
+                                borrowed: incoming?.borrowed || existing?.borrowed || [],
+                                lent: incoming?.lent || existing?.lent || []
+                            };
                         }
                     },
                     // Cache policy for pending transactions

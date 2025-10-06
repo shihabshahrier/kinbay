@@ -97,30 +97,38 @@ export const useProductMutations = () => {
                 cache.gc(); // Garbage collect orphaned references
             }
         },
-        // Refetch queries to ensure consistency
-        refetchQueries: [GET_ALL_PRODUCTS, GET_MY_PRODUCTS],
         onError: (error) => {
             console.error('Error deleting product:', error);
         }
-    });  // Create Product with Cache Update  
+    });
+
+    // Create Product with Cache Update  
     const [createProduct, { loading: createLoading }] = useMutation(CREATE_PRODUCT, {
         update(cache, { data }) {
             if (data?.createProduct) {
-                // Add to getAllProducts
-                cache.modify({
-                    fields: {
-                        getAllProducts(existingProducts = []) {
-                            return [...existingProducts, cache.writeFragment({
-                                data: data.createProduct,
-                                fragment: PRODUCT_FRAGMENT
-                            })];
-                        }
-                    }
+                const newProduct = data.createProduct;
+
+                // Write the new product to cache using fragment
+                const newProductRef = cache.writeFragment({
+                    data: newProduct,
+                    fragment: PRODUCT_FRAGMENT
                 });
+
+                if (newProductRef) {
+                    // Add to BOTH getAllProducts and getProductsByOwner lists
+                    cache.modify({
+                        fields: {
+                            getAllProducts(existingProducts = []) {
+                                return [...existingProducts, newProductRef];
+                            },
+                            getProductsByOwner(existingProducts = []) {
+                                return [...existingProducts, newProductRef];
+                            }
+                        }
+                    });
+                }
             }
         },
-        // Refetch queries to ensure consistency
-        refetchQueries: [GET_ALL_PRODUCTS, GET_MY_PRODUCTS],
         onError: (error) => {
             console.error('Error creating product:', error);
         }
@@ -158,14 +166,19 @@ export const useTransactionMutations = () => {
     const [buyProduct, { loading: buyLoading }] = useMutation(BUY_PRODUCT, {
         update(cache, { data }) {
             if (data?.buyProduct) {
-                // Add to user transactions
+                const newTransactionRef = cache.writeFragment({
+                    data: data.buyProduct,
+                    fragment: TRANSACTION_FRAGMENT
+                });
+
+                // Update the nested getUserTransactions structure
                 cache.modify({
                     fields: {
-                        getUserTransactions(existingTransactions = []) {
-                            return [...existingTransactions, cache.writeFragment({
-                                data: data.buyProduct,
-                                fragment: TRANSACTION_FRAGMENT
-                            })];
+                        getUserTransactions(existingTransactions = { bought: [], sold: [], borrowed: [], lent: [] }) {
+                            return {
+                                ...existingTransactions,
+                                bought: [...existingTransactions.bought, newTransactionRef]
+                            };
                         }
                     }
                 });
@@ -186,8 +199,7 @@ export const useTransactionMutations = () => {
                 }
             }
         },
-        // Refetch to ensure consistency
-        refetchQueries: [GET_USER_TRANSACTIONS, GET_ALL_PRODUCTS],
+        // Remove refetchQueries since cache updates should handle it
         onError: (error) => {
             console.error('Error buying product:', error);
         }
@@ -197,20 +209,25 @@ export const useTransactionMutations = () => {
     const [rentProduct, { loading: rentLoading }] = useMutation(RENT_PRODUCT, {
         update(cache, { data }) {
             if (data?.rentProduct) {
-                // Add to user transactions
+                const newTransactionRef = cache.writeFragment({
+                    data: data.rentProduct,
+                    fragment: TRANSACTION_FRAGMENT
+                });
+
+                // Update the nested getUserTransactions structure
                 cache.modify({
                     fields: {
-                        getUserTransactions(existingTransactions = []) {
-                            return [...existingTransactions, cache.writeFragment({
-                                data: data.rentProduct,
-                                fragment: TRANSACTION_FRAGMENT
-                            })];
+                        getUserTransactions(existingTransactions = { bought: [], sold: [], borrowed: [], lent: [] }) {
+                            return {
+                                ...existingTransactions,
+                                borrowed: [...existingTransactions.borrowed, newTransactionRef]
+                            };
                         }
                     }
                 });
             }
         },
-        refetchQueries: [GET_USER_TRANSACTIONS],
+        // Remove refetchQueries since cache updates should handle it
         onError: (error) => {
             console.error('Error renting product:', error);
         }
@@ -367,3 +384,4 @@ export const useCacheStats = () => {
 
     return { getCacheStats };
 };
+
