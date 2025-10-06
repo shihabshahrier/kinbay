@@ -4,6 +4,7 @@ import { useForm } from '@mantine/form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 import { CREATE_USER } from '../lib/graphql';
 import { useAuth } from '../hooks/useAuth';
 import type { RegisterFormData } from '../types';
@@ -64,97 +65,169 @@ const Register = () => {
     };
 
     return (
-        <Container size={500} my={40}>
-            <Title ta="center" mb="xl">
-                Join Kinbay
-            </Title>
+        <div className="min-h-screen flex items-center justify-center p-4">
+            <Container size={580}>
+                <motion.div
+                    initial={{ opacity: 0, y: -30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <div className="text-center mb-8">
+                        <div className="kinbay-logo text-5xl mb-4 inline-block">
+                            <span className="letter-k">K</span>
+                            <span className="letter-i">i</span>
+                            <span className="letter-n">n</span>
+                            <span className="letter-b">b</span>
+                            <span className="letter-a">a</span>
+                            <span className="letter-y">y</span>
+                        </div>
+                        <Title ta="center" className="text-white text-3xl">
+                            Join Kinbay
+                        </Title>
+                    </div>
 
-            <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-                <form onSubmit={form.onSubmit(handleSubmit)}>
-                    {error && (
-                        <Alert icon={<IconAlertCircle size="1rem" />} title="Error!" color="red" mb="md">
-                            {error}
-                        </Alert>
-                    )}
+                    <Paper className="glass-card" p={40} radius="xl">
+                        <form onSubmit={form.onSubmit(handleSubmit)}>
+                            {error && (
+                                <Alert
+                                    icon={<IconAlertCircle size="1rem" />}
+                                    title="Error!"
+                                    color="red"
+                                    mb="md"
+                                    className="glass"
+                                    radius="lg"
+                                >
+                                    {error}
+                                </Alert>
+                            )}
 
-                    {success && (
-                        <Alert icon={<IconCheck size="1rem" />} title="Success!" color="green" mb="md">
-                            Account created successfully!
-                        </Alert>
-                    )}
+                            {success && (
+                                <Alert
+                                    icon={<IconCheck size="1rem" />}
+                                    title="Success!"
+                                    color="green"
+                                    mb="md"
+                                    className="glass"
+                                    radius="lg"
+                                >
+                                    Account created successfully!
+                                </Alert>
+                            )}
 
-                    <Grid>
-                        <Grid.Col span={6}>
+                            <Grid>
+                                <Grid.Col span={6}>
+                                    <TextInput
+                                        label="First Name"
+                                        placeholder="John"
+                                        required
+                                        size="md"
+                                        {...form.getInputProps('firstname')}
+                                        classNames={{
+                                            label: 'text-white font-semibold mb-2',
+                                        }}
+                                    />
+                                </Grid.Col>
+                                <Grid.Col span={6}>
+                                    <TextInput
+                                        label="Last Name"
+                                        placeholder="Doe"
+                                        required
+                                        size="md"
+                                        {...form.getInputProps('lastname')}
+                                        classNames={{
+                                            label: 'text-white font-semibold mb-2',
+                                        }}
+                                    />
+                                </Grid.Col>
+                            </Grid>
+
                             <TextInput
-                                label="First Name"
-                                placeholder="John"
+                                label="Email"
+                                placeholder="your@email.com"
                                 required
-                                {...form.getInputProps('firstname')}
+                                mt="md"
+                                size="md"
+                                {...form.getInputProps('email')}
+                                classNames={{
+                                    label: 'text-white font-semibold mb-2',
+                                }}
                             />
-                        </Grid.Col>
-                        <Grid.Col span={6}>
+
                             <TextInput
-                                label="Last Name"
-                                placeholder="Doe"
+                                label="Address"
+                                placeholder="123 Main Street, City"
                                 required
-                                {...form.getInputProps('lastname')}
+                                mt="md"
+                                size="md"
+                                {...form.getInputProps('address')}
+                                classNames={{
+                                    label: 'text-white font-semibold mb-2',
+                                }}
                             />
-                        </Grid.Col>
-                    </Grid>
 
-                    <TextInput
-                        label="Email"
-                        placeholder="your@email.com"
-                        required
-                        mt="md"
-                        {...form.getInputProps('email')}
-                    />
+                            <TextInput
+                                label="Phone"
+                                placeholder="+1 234 567 8900"
+                                required
+                                mt="md"
+                                size="md"
+                                {...form.getInputProps('phone')}
+                                classNames={{
+                                    label: 'text-white font-semibold mb-2',
+                                }}
+                            />
 
-                    <TextInput
-                        label="Address"
-                        placeholder="123 Main Street, City"
-                        required
-                        mt="md"
-                        {...form.getInputProps('address')}
-                    />
+                            <PasswordInput
+                                label="Password"
+                                placeholder="Your password"
+                                required
+                                mt="md"
+                                size="md"
+                                {...form.getInputProps('password')}
+                                classNames={{
+                                    label: 'text-white font-semibold mb-2',
+                                }}
+                            />
 
-                    <TextInput
-                        label="Phone"
-                        placeholder="+1 234 567 8900"
-                        required
-                        mt="md"
-                        {...form.getInputProps('phone')}
-                    />
+                            <PasswordInput
+                                label="Confirm Password"
+                                placeholder="Confirm your password"
+                                required
+                                mt="md"
+                                size="md"
+                                {...form.getInputProps('confirmPassword')}
+                                classNames={{
+                                    label: 'text-white font-semibold mb-2',
+                                }}
+                            />
 
-                    <PasswordInput
-                        label="Password"
-                        placeholder="Your password"
-                        required
-                        mt="md"
-                        {...form.getInputProps('password')}
-                    />
+                            <Button
+                                type="submit"
+                                fullWidth
+                                mt="xl"
+                                loading={loading}
+                                size="lg"
+                                className="glass-button"
+                            >
+                                Create Account
+                            </Button>
+                        </form>
 
-                    <PasswordInput
-                        label="Confirm Password"
-                        placeholder="Confirm your password"
-                        required
-                        mt="md"
-                        {...form.getInputProps('confirmPassword')}
-                    />
-
-                    <Button type="submit" fullWidth mt="xl" loading={loading}>
-                        Create Account
-                    </Button>
-                </form>
-
-                <Text c="dimmed" size="sm" ta="center" mt={30}>
-                    Already have an account?{' '}
-                    <Text component={Link} to="/login" c="blue" style={{ cursor: 'pointer' }}>
-                        Sign in
-                    </Text>
-                </Text>
-            </Paper>
-        </Container>
+                        <Text size="sm" ta="center" mt={30} className="text-white/80">
+                            Already have an account?{' '}
+                            <Text
+                                component={Link}
+                                to="/login"
+                                className="text-ebay-blue font-semibold hover:underline"
+                                style={{ cursor: 'pointer' }}
+                            >
+                                Sign in
+                            </Text>
+                        </Text>
+                    </Paper>
+                </motion.div>
+            </Container>
+        </div>
     );
 };
 

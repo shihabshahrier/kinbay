@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconArrowLeft } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 import { GET_PRODUCT_BY_ID } from '../lib/graphql';
 import { useAuth } from '../hooks/useAuth';
 import { useTransactionMutations } from '../hooks/useCacheUpdates';
@@ -174,103 +175,107 @@ const ProductDetails = () => {
     const isOwner = user?.id === product.ownerId;
 
     return (
-        <Container size="md">
-            <Button
-                variant="subtle"
-                leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate('/products')}
-                mb="md"
+        <Container size="md" className="pb-20 md:pb-0">
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4 }}
             >
-                Back to Products
-            </Button>
+                <Button
+                    variant="subtle"
+                    leftSection={<IconArrowLeft size={16} />}
+                    onClick={() => navigate('/products')}
+                    mb="md"
+                    className="glass hover:bg-white/20"
+                >
+                    Back to Products
+                </Button>
+            </motion.div>
 
-            <Card shadow="sm" padding="xl" radius="md" withBorder>
-                <Title order={1} size="2.5rem" mb="sm" ta="center">
-                    {product.name}
-                </Title>
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+            >
+                <Card shadow="sm" padding="xl" radius="xl" className="glass-card">
+                    <Title order={1} size="2.5rem" mb="sm" ta="center" className="text-white">
+                        {product.name}
+                    </Title>
 
-                <Group justify="center" mb="lg">
-                    <Text size="sm" c="dimmed">Categories:</Text>
-                    {product.categories.map((category) => (
-                        <Badge key={category.id} variant="light" size="md">
-                            {category.name}
-                        </Badge>
-                    ))}
-                </Group>
+                    <Group justify="center" mb="lg" gap="xs">
+                        <Text size="sm" className="text-white/70">Categories:</Text>
+                        {product.categories.map((category) => (
+                            <Badge key={category.id} variant="light" size="md" className="glass-badge">
+                                {category.name}
+                            </Badge>
+                        ))}
+                    </Group>
 
-                {product.priceBuy && (
-                    <Text size="xl" fw={600} mb="md" ta="center" c="blue">
-                        Price: ${product.priceBuy}
-                    </Text>
-                )}
-
-                <Text size="md" mb="xl" style={{ lineHeight: 1.6 }}>
-                    {product.description}
-                </Text>
-
-                <Card withBorder p="md" mb="md">
-                    <Text fw={500} mb="sm">Owner Information</Text>
-                    <Text>
-                        {product.owner.firstname} {product.owner.lastname}
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                        {product.owner.email}
-                    </Text>
-                </Card>
-
-                <Card withBorder p="md" mb="md">
-                    <Text fw={500} mb="sm">Pricing</Text>
                     {product.priceBuy && (
-                        <Text size="lg" fw={500} c="blue">
-                            Buy: ${product.priceBuy}
+                        <Text size="xl" fw={600} mb="md" ta="center" className="text-ebay-yellow">
+                            Buy Price: ${product.priceBuy}
                         </Text>
                     )}
+
                     {product.priceRent && (
-                        <Text size="lg" fw={500} c="green">
+                        <Text size="xl" fw={600} mb="md" ta="center" className="text-ebay-green">
                             Rent: ${product.priceRent}/{product.rentOption?.toLowerCase()}
                         </Text>
                     )}
-                    {!product.priceBuy && !product.priceRent && (
-                        <Text c="orange">Not available for purchase or rent</Text>
+
+                    <Text size="md" mb="xl" style={{ lineHeight: 1.6 }} className="text-white/90">
+                        {product.description}
+                    </Text>
+
+                    <Card p="md" mb="md" className="glass rounded-xl">
+                        <Text fw={600} mb="sm" className="text-white">Owner Information</Text>
+                        <Text className="text-white/90">
+                            {product.owner.firstname} {product.owner.lastname}
+                        </Text>
+                        <Text size="sm" className="text-white/70">
+                            {product.owner.email}
+                        </Text>
+                    </Card>
+
+                    {isAuthenticated && !isOwner && (
+                        <Group justify="center" gap="md" mt="xl">
+                            {product.priceRent && (
+                                <Button
+                                    size="lg"
+                                    variant="light"
+                                    onClick={openRentModal}
+                                    style={{ minWidth: 150 }}
+                                    className="glass hover:bg-white/20"
+                                >
+                                    Rent Now
+                                </Button>
+                            )}
+                            {product.priceBuy && (
+                                <Button
+                                    size="lg"
+                                    onClick={openBuyModal}
+                                    style={{ minWidth: 150 }}
+                                    className="glass-button"
+                                >
+                                    Buy Now
+                                </Button>
+                            )}
+                        </Group>
+                    )}
+
+                    {!isAuthenticated && (
+                        <Alert color="blue" mt="md" className="glass" radius="lg">
+                            <Text className="text-white">Please log in to buy or rent this product.</Text>
+                        </Alert>
+                    )}
+
+                    {isOwner && (
+                        <Alert mt="md" className="glass" radius="lg">
+                            <Text className="text-white">This is your product. You can edit it from your dashboard.</Text>
+                        </Alert>
                     )}
                 </Card>
-
-                {isAuthenticated && !isOwner && (
-                    <Group justify="center" gap="md">
-                        {product.priceRent && (
-                            <Button
-                                size="lg"
-                                variant="light"
-                                onClick={openRentModal}
-                                style={{ minWidth: 120 }}
-                            >
-                                Rent
-                            </Button>
-                        )}
-                        {product.priceBuy && (
-                            <Button
-                                size="lg"
-                                onClick={openBuyModal}
-                                style={{ minWidth: 120 }}
-                            >
-                                Buy
-                            </Button>
-                        )}
-                    </Group>
-                )}
-
-                {!isAuthenticated && (
-                    <Alert color="blue" mt="md">
-                        Please log in to buy or rent this product.
-                    </Alert>
-                )}
-
-                {isOwner && (
-                    <Alert color="orange" mt="md">
-                        This is your product. You can edit it from your dashboard.
-                    </Alert>
-                )}
-            </Card>
+            </motion.div>
 
             {/* Buy Modal */}
             <Modal

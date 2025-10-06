@@ -141,9 +141,39 @@ function AppContent() {
 function App() {
   return (
     <ApolloProvider client={client}>
-      <MantineProvider>
+      <MantineProvider
+        theme={{
+          fontFamily: 'Poppins, Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+          primaryColor: 'violet',
+          colors: {
+            'ebay-red': ['#FEE2E2', '#FECACA', '#FCA5A5', '#F87171', '#EF4444', '#DC2626', '#B91C1C', '#991B1B', '#7F1D1D', '#E53238'],
+            'ebay-blue': ['#DBEAFE', '#BFDBFE', '#93C5FD', '#60A5FA', '#3B82F6', '#2563EB', '#1D4ED8', '#1E40AF', '#1E3A8A', '#0064D2'],
+            'ebay-yellow': ['#FEF3C7', '#FDE68A', '#FCD34D', '#FBBF24', '#F59E0B', '#D97706', '#B45309', '#92400E', '#78350F', '#F5AF02'],
+            'ebay-green': ['#D1FAE5', '#A7F3D0', '#6EE7B7', '#34D399', '#10B981', '#059669', '#047857', '#065F46', '#064E3B', '#86B817'],
+          },
+          defaultRadius: 'xl',
+          components: {
+            Button: {
+              defaultProps: {
+                radius: 'xl',
+              },
+            },
+            Card: {
+              defaultProps: {
+                radius: 'xl',
+              },
+            },
+            Modal: {
+              defaultProps: {
+                radius: 'xl',
+                centered: true,
+              },
+            },
+          },
+        }}
+      >
         <ModalsProvider>
-          <Notifications />
+          <Notifications position="top-right" />
           <AuthProvider>
             <AppContent />
           </AuthProvider>

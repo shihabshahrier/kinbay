@@ -6,6 +6,7 @@ import { useQuery } from '@apollo/client';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconShoppingCart, IconCalendar } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 import { GET_ALL_PRODUCTS } from '../lib/graphql';
 import { useAuth } from '../hooks/useAuth';
 import { useTransactionMutations } from '../hooks/useCacheUpdates';
@@ -161,92 +162,111 @@ const Products = () => {
     const products = data?.getAllProducts || [];
 
     return (
-        <Container size="lg">
-            <Title mb="xl">All Products</Title>
+        <Container size="xl" className="pb-20 md:pb-0">
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <Title mb="xl" className="text-white text-4xl font-bold">All Products</Title>
+            </motion.div>
 
             <Grid>
-                {products.map((product: Product) => (
+                {products.map((product: Product, index: number) => (
                     <Grid.Col key={product.id} span={{ base: 12, md: 6, lg: 4 }}>
-                        <Card
-                            shadow="sm"
-                            padding="lg"
-                            radius="md"
-                            withBorder
-                            style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
-                            onClick={() => navigate(`/products/${product.id}`)}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            whileHover={{
+                                scale: 1.02,
+                                y: -8
                             }}
                         >
-                            <Text fw={500} size="lg" mb="xs">
-                                {product.name}
-                            </Text>
-
-                            <Text size="sm" c="dimmed" mb="sm">
-                                {product.description}
-                            </Text>
-
-                            <Group mb="sm">
-                                {product.categories.map((category) => (
-                                    <Badge key={category.id} variant="light">
-                                        {category.name}
-                                    </Badge>
-                                ))}
-                            </Group>
-
-                            <Text size="sm" mb="sm">
-                                Owner: {product.owner.firstname} {product.owner.lastname}
-                            </Text>
-
-                            <Group justify="space-between" mt="md">
-                                <div>
-                                    {product.priceBuy && (
-                                        <Text size="sm">Buy: ${product.priceBuy}</Text>
-                                    )}
-                                    {product.priceRent && (
-                                        <Text size="sm">Rent: ${product.priceRent}/{product.rentOption?.toLowerCase()}</Text>
-                                    )}
-                                </div>
-                                <Text size="xs" c="dimmed" style={{ textDecoration: 'underline' }}>
-                                    View Details
+                            <Card
+                                shadow="sm"
+                                padding="lg"
+                                radius="xl"
+                                className="glass-card cursor-pointer h-full"
+                                onClick={() => navigate(`/products/${product.id}`)}
+                            >
+                                <Text fw={600} size="xl" mb="xs" className="text-white">
+                                    {product.name}
                                 </Text>
-                            </Group>
 
-                            {isAuthenticated && user?.id !== product.ownerId && (
-                                <Group mt="md">
-                                    {product.priceBuy && (
-                                        <Button
-                                            size="xs"
-                                            leftSection={<IconShoppingCart size={16} />}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                openBuyModal(product);
-                                            }}
-                                        >
-                                            Buy
-                                        </Button>
-                                    )}
-                                    {product.priceRent && (
-                                        <Button
-                                            size="xs"
+                                <Text size="sm" c="dimmed" mb="sm" className="text-white/80 line-clamp-2">
+                                    {product.description}
+                                </Text>
+
+                                <Group mb="sm" gap="xs">
+                                    {product.categories.map((category) => (
+                                        <Badge
+                                            key={category.id}
                                             variant="light"
-                                            leftSection={<IconCalendar size={16} />}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                openRentModal(product);
-                                            }}
+                                            className="glass-badge"
+                                            size="lg"
                                         >
-                                            Rent
-                                        </Button>
-                                    )}
+                                            {category.name}
+                                        </Badge>
+                                    ))}
                                 </Group>
-                            )}
-                        </Card>
+
+                                <Text size="sm" mb="sm" className="text-white/70">
+                                    <span className="font-semibold">Owner:</span> {product.owner.firstname} {product.owner.lastname}
+                                </Text>
+
+                                <Group justify="space-between" mt="md" className="pt-3 border-t border-white/20">
+                                    <div>
+                                        {product.priceBuy && (
+                                            <Text size="md" fw={600} className="text-white">
+                                                Buy: <span className="text-ebay-yellow">${product.priceBuy}</span>
+                                            </Text>
+                                        )}
+                                        {product.priceRent && (
+                                            <Text size="md" fw={600} className="text-white">
+                                                Rent: <span className="text-ebay-green">${product.priceRent}</span>
+                                                <span className="text-white/60">/{product.rentOption?.toLowerCase()}</span>
+                                            </Text>
+                                        )}
+                                    </div>
+                                    <Text size="xs" className="text-white/80 underline hover:text-white transition-colors">
+                                        View Details →
+                                    </Text>
+                                </Group>
+
+                                {isAuthenticated && user?.id !== product.ownerId && (
+                                    <Group mt="md" gap="xs">
+                                        {product.priceBuy && (
+                                            <Button
+                                                size="sm"
+                                                leftSection={<IconShoppingCart size={16} />}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    openBuyModal(product);
+                                                }}
+                                                className="glass-button flex-1"
+                                            >
+                                                Buy Now
+                                            </Button>
+                                        )}
+                                        {product.priceRent && (
+                                            <Button
+                                                size="sm"
+                                                variant="light"
+                                                leftSection={<IconCalendar size={16} />}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    openRentModal(product);
+                                                }}
+                                                className="glass hover:bg-white/20 flex-1"
+                                            >
+                                                Rent
+                                            </Button>
+                                        )}
+                                    </Group>
+                                )}
+                            </Card>
+                        </motion.div>
                     </Grid.Col>
                 ))}
             </Grid>
@@ -256,11 +276,18 @@ const Products = () => {
                 opened={actionType === 'buy'}
                 onClose={() => setActionType(null)}
                 title="Purchase Product"
+                centered
+                radius="xl"
+                overlayProps={{ blur: 4 }}
             >
                 {selectedProduct && (
-                    <>
-                        <Text mb="md">
-                            Are you sure you want to buy "{selectedProduct.name}"?
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <Text mb="md" className="text-white text-lg">
+                            Are you sure you want to buy <span className="font-semibold">"{selectedProduct.name}"</span>?
                         </Text>
                         <NumberInput
                             label="Price"
@@ -269,16 +296,26 @@ const Products = () => {
                             min={0}
                             prefix="$"
                             mb="md"
+                            size="md"
+                            className="glass-input"
                         />
-                        <Group justify="flex-end">
-                            <Button variant="light" onClick={() => setActionType(null)}>
+                        <Group justify="flex-end" gap="sm">
+                            <Button
+                                variant="light"
+                                onClick={() => setActionType(null)}
+                                className="glass hover:bg-white/20"
+                            >
                                 Cancel
                             </Button>
-                            <Button onClick={handleBuy} loading={buyLoading}>
+                            <Button
+                                onClick={handleBuy}
+                                loading={buyLoading}
+                                className="glass-button"
+                            >
                                 Confirm Purchase
                             </Button>
                         </Group>
-                    </>
+                    </motion.div>
                 )}
             </Modal>
 
@@ -287,63 +324,85 @@ const Products = () => {
                 opened={actionType === 'rent'}
                 onClose={() => setActionType(null)}
                 title="Rent Product"
+                centered
+                radius="xl"
+                overlayProps={{ blur: 4 }}
             >
                 {selectedProduct && (
-                    <form onSubmit={rentForm.onSubmit(handleRent)}>
-                        <Text mb="md">
-                            Rent "{selectedProduct.name}" - ${selectedProduct.priceRent}/{selectedProduct.rentOption?.toLowerCase()}
-                        </Text>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <form onSubmit={rentForm.onSubmit(handleRent)}>
+                            <Text mb="md" className="text-white text-lg">
+                                Rent <span className="font-semibold">"{selectedProduct.name}"</span> -
+                                <span className="text-ebay-green"> ${selectedProduct.priceRent}</span>
+                                <span className="text-white/70">/{selectedProduct.rentOption?.toLowerCase()}</span>
+                            </Text>
 
-                        <DatePickerInput
-                            label="Start Date"
-                            placeholder="Pick start date"
-                            {...rentForm.getInputProps('startDate')}
-                            mb="md"
-                            minDate={new Date()}
-                        />
+                            <DatePickerInput
+                                label="Start Date"
+                                placeholder="Pick start date"
+                                {...rentForm.getInputProps('startDate')}
+                                mb="md"
+                                minDate={new Date()}
+                                size="md"
+                            />
 
-                        <Select
-                            label="Rental Period"
-                            placeholder="Select rental type"
-                            data={[
-                                {
-                                    value: selectedProduct.rentOption || 'DAILY',
-                                    label: (selectedProduct.rentOption || 'DAILY').charAt(0) + (selectedProduct.rentOption || 'DAILY').slice(1).toLowerCase()
-                                }
-                            ]}
-                            {...rentForm.getInputProps('rentOption')}
-                            mb="md"
-                            disabled
-                        />
+                            <Select
+                                label="Rental Period"
+                                placeholder="Select rental type"
+                                data={[
+                                    {
+                                        value: selectedProduct.rentOption || 'DAILY',
+                                        label: (selectedProduct.rentOption || 'DAILY').charAt(0) + (selectedProduct.rentOption || 'DAILY').slice(1).toLowerCase()
+                                    }
+                                ]}
+                                {...rentForm.getInputProps('rentOption')}
+                                mb="md"
+                                disabled
+                                size="md"
+                            />
 
-                        <NumberInput
-                            label={`Duration (${rentForm.values.rentOption.toLowerCase()}s)`}
-                            placeholder="Enter duration"
-                            {...rentForm.getInputProps('duration')}
-                            min={1}
-                            mb="md"
-                        />
+                            <NumberInput
+                                label={`Duration (${rentForm.values.rentOption.toLowerCase()}s)`}
+                                placeholder="Enter duration"
+                                {...rentForm.getInputProps('duration')}
+                                min={1}
+                                mb="md"
+                                size="md"
+                            />
 
-                        {rentForm.values.startDate && rentForm.values.duration > 0 && (
-                            <>
-                                <Text size="sm" c="dimmed" mb="xs">
-                                    End Date: {calculateEndDate(rentForm.values.startDate, rentForm.values.duration, rentForm.values.rentOption).toLocaleDateString()}
-                                </Text>
-                                <Text size="sm" c="dimmed" mb="md">
-                                    Total: ${calculateTotalPrice()}
-                                </Text>
-                            </>
-                        )}
+                            {rentForm.values.startDate && rentForm.values.duration > 0 && (
+                                <div className="glass rounded-xl p-4 mb-md">
+                                    <Text size="sm" className="text-white/90 mb-2">
+                                        <span className="font-semibold">End Date:</span> {calculateEndDate(rentForm.values.startDate, rentForm.values.duration, rentForm.values.rentOption).toLocaleDateString()}
+                                    </Text>
+                                    <Text size="md" fw={600} className="text-ebay-yellow">
+                                        Total: ${calculateTotalPrice()}
+                                    </Text>
+                                </div>
+                            )}
 
-                        <Group justify="flex-end">
-                            <Button variant="light" onClick={() => setActionType(null)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" loading={rentLoading}>
-                                Confirm Rental
-                            </Button>
-                        </Group>
-                    </form>
+                            <Group justify="flex-end" gap="sm" mt="lg">
+                                <Button
+                                    variant="light"
+                                    onClick={() => setActionType(null)}
+                                    className="glass hover:bg-white/20"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={rentLoading}
+                                    className="glass-button"
+                                >
+                                    Confirm Rental
+                                </Button>
+                            </Group>
+                        </form>
+                    </motion.div>
                 )}
             </Modal>
         </Container>
