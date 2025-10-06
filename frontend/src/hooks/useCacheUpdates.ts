@@ -97,30 +97,38 @@ export const useProductMutations = () => {
                 cache.gc(); // Garbage collect orphaned references
             }
         },
-        // Refetch queries to ensure consistency
-        refetchQueries: [GET_ALL_PRODUCTS, GET_MY_PRODUCTS],
         onError: (error) => {
             console.error('Error deleting product:', error);
         }
-    });  // Create Product with Cache Update  
+    });
+
+    // Create Product with Cache Update  
     const [createProduct, { loading: createLoading }] = useMutation(CREATE_PRODUCT, {
         update(cache, { data }) {
             if (data?.createProduct) {
-                // Add to getAllProducts
-                cache.modify({
-                    fields: {
-                        getAllProducts(existingProducts = []) {
-                            return [...existingProducts, cache.writeFragment({
-                                data: data.createProduct,
-                                fragment: PRODUCT_FRAGMENT
-                            })];
-                        }
-                    }
+                const newProduct = data.createProduct;
+
+                // Write the new product to cache using fragment
+                const newProductRef = cache.writeFragment({
+                    data: newProduct,
+                    fragment: PRODUCT_FRAGMENT
                 });
+
+                if (newProductRef) {
+                    // Add to BOTH getAllProducts and getProductsByOwner lists
+                    cache.modify({
+                        fields: {
+                            getAllProducts(existingProducts = []) {
+                                return [...existingProducts, newProductRef];
+                            },
+                            getProductsByOwner(existingProducts = []) {
+                                return [...existingProducts, newProductRef];
+                            }
+                        }
+                    });
+                }
             }
         },
-        // Refetch queries to ensure consistency
-        refetchQueries: [GET_ALL_PRODUCTS, GET_MY_PRODUCTS],
         onError: (error) => {
             console.error('Error creating product:', error);
         }
@@ -367,3 +375,4 @@ export const useCacheStats = () => {
 
     return { getCacheStats };
 };
+
