@@ -57,7 +57,12 @@ const mutations = {
     loginUser: async (_: any, payload: getUserTokenPayload, context: { res?: any }) => {
         const tokens = await UserService.getUserToken(payload);
 
-        // Set refresh token as HTTP-only cookie if response is available
+        // In development mode, return actual tokens for testing
+        if (process.env.NODE_ENV === 'development') {
+            return tokens;
+        }
+
+        // Set refresh token as HTTP-only cookie if response is available (production)
         if (context.res) {
             context.res.cookie('refreshToken', tokens.refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
