@@ -386,20 +386,20 @@ body::before {
     padding-bottom: 80px !important;
   }
 
-  /* Mobile spacing for AddProduct page */
-  .mantine-Container-root {
+  /* Mobile spacing for AddProduct page only */
+  .mantine-AppShell-main .mantine-Container-root {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
 
   /* Better mobile spacing for product creation steps */
-  .mantine-Title-root {
+  .mantine-AppShell-main .mantine-Title-root {
     font-size: 1.5rem !important;
     margin-bottom: 1rem !important;
   }
 
-  /* Mobile-friendly button spacing */
-  .mantine-Group-root {
+  /* Mobile-friendly button spacing inside AppShell */
+  .mantine-AppShell-main .mantine-Group-root {
     gap: 0.75rem !important;
   }
 }

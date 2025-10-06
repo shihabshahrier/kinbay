@@ -78,15 +78,14 @@ const Register = () => {
                 width: '100%'
             }}
         >
-            <Container size={580} style={{ width: '100%', maxWidth: '580px' }}>
+            <Container size={580}>
                 <motion.div
                     initial={{ opacity: 0, y: -30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     style={{
                         padding: '1rem 0',
-                        minHeight: 'fit-content',
-                        width: '100%'
+                        minHeight: 'fit-content'
                     }}
                 >
                     <div className="text-center mb-8">
