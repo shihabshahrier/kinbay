@@ -80,7 +80,8 @@ gcloud run deploy kinbay-backend \
   --set-secrets JWT_ACCESS_SECRET=JWT_ACCESS_SECRET:latest \
   --set-secrets JWT_REFRESH_SECRET=JWT_REFRESH_SECRET:latest \
   --set-env-vars NODE_ENV=production \
-  --set-env-vars CORS_ORIGIN="https://your-app.pages.dev"
+  --set-env-vars CORS_ORIGIN="https://kinbay.shihub.online,https://app-kinbay.shihub.online,https://app.kinbay.shihub.online" \
+  --set-env-vars FRONTEND_URL="https://kinbay.shihub.online"
 ```
 
 ## Environment Variables
@@ -91,7 +92,8 @@ The following environment variables are configured automatically:
 - `JWT_ACCESS_SECRET` - Secret for access tokens
 - `JWT_REFRESH_SECRET` - Secret for refresh tokens
 - `NODE_ENV=production` - Production mode
-- `CORS_ORIGIN` - Allowed frontend origins
+- `CORS_ORIGIN` - Allowed frontend origins (kinbay.shihub.online, app-kinbay.shihub.online, app.kinbay.shihub.online)
+- `FRONTEND_URL` - Primary frontend URL for redirects and references
 
 ## Features
 
@@ -134,8 +136,16 @@ The following environment variables are configured automatically:
 - Ensure connection string includes `?sslmode=require`
 
 ### CORS Issues
-- Update CORS_ORIGIN environment variable
-- Verify frontend domain is correct
+- Update CORS_ORIGIN environment variable to include all frontend domains:
+  ```bash
+  # Use the update-cors.sh script for quick updates
+  ./update-cors.sh YOUR_PROJECT_ID us-central1
+  ```
+- Current allowed domains:
+  - `https://kinbay.shihub.online` (main domain)
+  - `https://app-kinbay.shihub.online` (app subdomain with hyphen)
+  - `https://app.kinbay.shihub.online` (app subdomain with dot)
+- Verify frontend domain matches exactly (no wildcards in CORS)
 - Check cookies are sent with `credentials: 'include'`
 
 ### Cookie Issues

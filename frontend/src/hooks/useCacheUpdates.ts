@@ -50,6 +50,11 @@ const TRANSACTION_FRAGMENT = gql`
     product {
       id
       name
+      owner {
+        id
+        firstname
+        lastname
+      }
     }
     user {
       id
@@ -102,7 +107,9 @@ export const useProductMutations = () => {
         onError: (error) => {
             console.error('Error deleting product:', error);
         }
-    });  // Create Product with Cache Update  
+    });
+
+    // Create Product with Cache Update  
     const [createProduct, { loading: createLoading }] = useMutation(CREATE_PRODUCT, {
         update(cache, { data }) {
             if (data?.createProduct) {
@@ -154,18 +161,24 @@ export const useProductMutations = () => {
 };
 
 export const useTransactionMutations = () => {
-    // Buy Product with Cache Update
+    // Buy Product with Cache Update - FIXED: Now properly adds to "bought" array
     const [buyProduct, { loading: buyLoading }] = useMutation(BUY_PRODUCT, {
         update(cache, { data }) {
             if (data?.buyProduct) {
-                // Add to user transactions
+                // Write transaction to cache first
+                const transactionRef = cache.writeFragment({
+                    data: data.buyProduct,
+                    fragment: TRANSACTION_FRAGMENT
+                });
+
+                // Add to "bought" array in getUserTransactions object
                 cache.modify({
                     fields: {
-                        getUserTransactions(existingTransactions = []) {
-                            return [...existingTransactions, cache.writeFragment({
-                                data: data.buyProduct,
-                                fragment: TRANSACTION_FRAGMENT
-                            })];
+                        getUserTransactions(existing = { bought: [], sold: [], borrowed: [], lent: [] }) {
+                            return {
+                                ...existing,
+                                bought: [...(existing.bought || []), transactionRef]
+                            };
                         }
                     }
                 });
@@ -193,18 +206,24 @@ export const useTransactionMutations = () => {
         }
     });
 
-    // Rent Product with Cache Update
+    // Rent Product with Cache Update - FIXED: Now properly adds to "borrowed" array
     const [rentProduct, { loading: rentLoading }] = useMutation(RENT_PRODUCT, {
         update(cache, { data }) {
             if (data?.rentProduct) {
-                // Add to user transactions
+                // Write transaction to cache first
+                const transactionRef = cache.writeFragment({
+                    data: data.rentProduct,
+                    fragment: TRANSACTION_FRAGMENT
+                });
+
+                // Add to "borrowed" array in getUserTransactions object
                 cache.modify({
                     fields: {
-                        getUserTransactions(existingTransactions = []) {
-                            return [...existingTransactions, cache.writeFragment({
-                                data: data.rentProduct,
-                                fragment: TRANSACTION_FRAGMENT
-                            })];
+                        getUserTransactions(existing = { bought: [], sold: [], borrowed: [], lent: [] }) {
+                            return {
+                                ...existing,
+                                borrowed: [...(existing.borrowed || []), transactionRef]
+                            };
                         }
                     }
                 });
@@ -216,11 +235,40 @@ export const useTransactionMutations = () => {
         }
     });
 
-    // Complete Transaction with Cache Update
+    // Complete Transaction with Cache Update - FIXED: Now adds to "sold" or "lent" arrays
     const [completeTransaction, { loading: completeLoading }] = useMutation(COMPLETE_TRANSACTION, {
         update(cache, { data }) {
             if (data?.completeTransaction) {
                 const completedTransaction = data.completeTransaction;
+
+                // Write transaction to cache first
+                const transactionRef = cache.writeFragment({
+                    data: completedTransaction,
+                    fragment: TRANSACTION_FRAGMENT
+                });
+
+                // Add completed transaction to "sold" or "lent" array depending on type
+                cache.modify({
+                    fields: {
+                        getUserTransactions(existing = { bought: [], sold: [], borrowed: [], lent: [] }) {
+                            // If it's a BUY transaction, add to seller's "sold" array
+                            if (completedTransaction.type === 'BUY') {
+                                return {
+                                    ...existing,
+                                    sold: [...(existing.sold || []), transactionRef]
+                                };
+                            }
+                            // If it's a RENT transaction, add to owner's "lent" array
+                            if (completedTransaction.type === 'RENT') {
+                                return {
+                                    ...existing,
+                                    lent: [...(existing.lent || []), transactionRef]
+                                };
+                            }
+                            return existing;
+                        }
+                    }
+                });
 
                 // Remove from pending transactions
                 cache.modify({
@@ -277,7 +325,7 @@ export const useCacheManagement = () => {
         // Clear user-specific data from cache on logout
         client.cache.modify({
             fields: {
-                getUserTransactions: () => [],
+                getUserTransactions: () => ({ bought: [], sold: [], borrowed: [], lent: [] }),
                 getPendingTransactionsForOwner: () => [],
                 getProductsByOwner: () => []
             }

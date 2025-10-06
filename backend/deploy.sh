@@ -41,7 +41,8 @@ gcloud run deploy $SERVICE_NAME \
   --set-secrets DATABASE_URL=DATABASE_URL:latest \
   --set-secrets JWT_ACCESS_SECRET=JWT_ACCESS_SECRET:latest \
   --set-secrets JWT_REFRESH_SECRET=JWT_REFRESH_SECRET:latest \
-  --set-env-vars CORS_ORIGIN="https://your-app.pages.dev"
+  --set-env-vars "CORS_ORIGIN=https://kinbay.shihub.online,https://app-kinbay.shihub.online,https://app.kinbay.shihub.online,https://shihub.online" \
+  --set-env-vars "FRONTEND_URL=https://kinbay.shihub.online"
 
 # Get service URL
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format="value(status.url)")
