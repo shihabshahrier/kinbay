@@ -164,6 +164,7 @@ export const useProductMutations = () => {
 export const useTransactionMutations = () => {
     // Buy Product with Cache Update
     const [buyProduct, { loading: buyLoading }] = useMutation(BUY_PRODUCT, {
+        errorPolicy: 'all', // Get both data and errors to check manually
         update(cache, { data }) {
             if (data?.buyProduct) {
                 const newTransactionRef = cache.writeFragment({
@@ -207,6 +208,7 @@ export const useTransactionMutations = () => {
 
     // Rent Product with Cache Update
     const [rentProduct, { loading: rentLoading }] = useMutation(RENT_PRODUCT, {
+        errorPolicy: 'all', // Get both data and errors to check manually
         update(cache, { data }) {
             if (data?.rentProduct) {
                 const newTransactionRef = cache.writeFragment({
@@ -235,6 +237,7 @@ export const useTransactionMutations = () => {
 
     // Complete Transaction with Cache Update
     const [completeTransaction, { loading: completeLoading }] = useMutation(COMPLETE_TRANSACTION, {
+        errorPolicy: 'none', // This will make Apollo throw errors for GraphQL errors
         update(cache, { data }) {
             if (data?.completeTransaction) {
                 const completedTransaction = data.completeTransaction;

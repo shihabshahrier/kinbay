@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Container, Title, Card, Text, Badge, Button, Grid, Group, Alert, LoadingOverlay, NumberInput, Modal, Select } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { DatePickerInput } from '@mantine/dates';
-import { useQuery } from '@apollo/client';
+import { useQuery, ApolloError } from '@apollo/client';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconShoppingCart, IconCalendar } from '@tabler/icons-react';
@@ -87,10 +87,23 @@ const Products = () => {
             });
             setActionType(null);
             setSelectedProduct(null);
-        } catch {
+        } catch (error) {
+            // Handle Apollo GraphQL errors
+            let errorMessage = 'Failed to send purchase request';
+
+            if (error instanceof ApolloError) {
+                if (error.graphQLErrors.length > 0) {
+                    errorMessage = error.graphQLErrors[0].message;
+                } else if (error.networkError) {
+                    errorMessage = 'Network error occurred';
+                }
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
             notifications.show({
-                title: 'Error',
-                message: 'Failed to send purchase request',
+                title: 'Purchase Failed',
+                message: errorMessage,
                 color: 'red'
             });
         }
@@ -105,7 +118,7 @@ const Products = () => {
         const totalPrice = calculateTotalPrice();
 
         try {
-            await rentProduct({
+            const result = await rentProduct({
                 variables: {
                     productId: selectedProduct.id,
                     price: totalPrice,
@@ -113,18 +126,56 @@ const Products = () => {
                     endDate: endDate.toISOString()
                 }
             });
+
+            // Check for GraphQL errors first
+            if (result.errors && result.errors.length > 0) {
+                notifications.show({
+                    title: 'Rental Failed',
+                    message: result.errors[0].message,
+                    color: 'red'
+                });
+                return;
+            }
+
+            // Check if the mutation actually succeeded
+            if (result.data?.rentProduct) {
+                notifications.show({
+                    title: 'Success',
+                    message: 'Rental request sent successfully!',
+                    color: 'green'
+                });
+                setActionType(null);
+                setSelectedProduct(null);
+                rentForm.reset();
+            } else {
+                // If data is null, there was an error but no exception was thrown
+                notifications.show({
+                    title: 'Rental Failed',
+                    message: 'Failed to send rental request',
+                    color: 'red'
+                });
+            }
+        } catch (error) {
+            // Handle Apollo GraphQL errors
+            console.log('Rental error caught:', error);
+            let errorMessage = 'Failed to send rental request';
+
+            if (error instanceof ApolloError) {
+                console.log('Apollo error detected:', error.graphQLErrors);
+                if (error.graphQLErrors.length > 0) {
+                    errorMessage = error.graphQLErrors[0].message;
+                    console.log('Using GraphQL error message:', errorMessage);
+                } else if (error.networkError) {
+                    errorMessage = 'Network error occurred';
+                }
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+                console.log('Using standard error message:', errorMessage);
+            }
+
             notifications.show({
-                title: 'Success',
-                message: 'Rental request sent successfully!',
-                color: 'green'
-            });
-            setActionType(null);
-            setSelectedProduct(null);
-            rentForm.reset();
-        } catch {
-            notifications.show({
-                title: 'Error',
-                message: 'Failed to send rental request',
+                title: 'Rental Failed',
+                message: errorMessage,
                 color: 'red'
             });
         }
