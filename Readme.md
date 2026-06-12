@@ -251,3 +251,7 @@ For support, email shahrier2k@gmail.com or create an issue in this repository.
 - [ ] Real-time notifications
 - [ ] Mobile app development
 - [ ] Multi-language support
+
+---
+
+📖 **Project page:** https://shihub.online/projects/kinbay
