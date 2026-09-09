@@ -254,4 +254,4 @@ For support, email shahrier2k@gmail.com or create an issue in this repository.
 
 ---
 
-📖 **Project page:** https://shihub.online/projects/kinbay
+📖 **Project page:** https://shihub.site/projects/kinbay
